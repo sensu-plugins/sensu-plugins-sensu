@@ -8,6 +8,9 @@ LineLength:
 AbcSize:
   Max: 75
 
+AbcSize:
+    Max: 50
+
 FileName:
   Enabled: false
 
@@ -24,7 +27,11 @@ IfUnlessModifier:
   Enabled: false
 
 RegexpLiteral:
+<<<<<<< HEAD
   Enabled: false
 
 Style/Documentation:
   Enabled: false
+=======
+    Enabled: false
+>>>>>>> update repo

@@ -9,6 +9,7 @@ VAGRANTFILE_API_VERSION = '2'
 config_file = JSON.parse(File.read('../GIR/config/vagrant_config.json'))
 vagrant_config = config_file['config']
 
+<<<<<<< HEAD
 # The vagrant boxes are provisioned by Chef.
 # If this is nothing something you want to deal with then comment out the
 # provisioner and chef and berkshelf lines.  The boxes as they stand are
@@ -16,6 +17,10 @@ vagrant_config = config_file['config']
 # initial testing.
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # Standard configuration details
+=======
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  # Standard configurtaion details
+>>>>>>> update repo
   config.vm.box_download_checksum = true
   config.vm.box_download_checksum_type = 'md5'
   config.vm.hostname = 'sensu-plugins-dev'
@@ -52,6 +57,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       vagrant_config['cent6']['role'].each do |r|
         chef.add_role(r)
       end
+<<<<<<< HEAD
+=======
+      # chef.add_recipe 'apache2'
+>>>>>>> update repo
     end
   end
 
@@ -62,6 +71,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       vagrant_config['cent7']['role'].each do |r|
         chef.add_role(r)
       end
+<<<<<<< HEAD
+=======
+      # chef.add_recipe 'apache2'
+>>>>>>> update repo
     end
   end
 
@@ -89,7 +102,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     bsd9.ssh.shell = '/bin/sh'
     bsd9.vm.box = vagrant_config['bsd9']['box']
 
+<<<<<<< HEAD
     # Use rsync in place of shared folders
+=======
+    # Use rsync as a shared folder
+>>>>>>> update repo
     bsd9.vm.synced_folder '.', '/vagrant', type: 'rsync'
     bsd9.vm.provision 'chef_zero' do |chef|
       chef.synced_folder_type = 'rsync'
@@ -104,7 +121,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     bsd10.vm.guest = :freebsd
     bsd10.vm.box = vagrant_config['bsd10']['box']
 
+<<<<<<< HEAD
     # Use rsync in place of shared folders
+=======
+    # Use rsync as a shared folder
+>>>>>>> update repo
     bsd10.vm.synced_folder '.', '/vagrant', type: 'rsync'
     bsd10.vm.provision 'chef_zero' do |chef|
       chef.synced_folder_type = 'rsync'
