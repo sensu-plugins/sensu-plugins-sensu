@@ -5,11 +5,8 @@ This CHANGELOG follows the format listed at [Keep A Changelog](http://keepachang
 
 ## Unreleased][unreleased]
 
-<<<<<<< HEAD
-=======
-## 0.0.1 - 2015-04-30
+## [0.0.1] - 2015-06-04
 
 ### Added
 - initial release
 
->>>>>>> update repo
