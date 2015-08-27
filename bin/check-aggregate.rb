@@ -110,12 +110,10 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
   def acquire_aggregate
     uri = "/aggregates/#{config[:check]}"
     issued = api_request(uri + "?age=#{config[:age]}" + (config[:limit] ? "&limit=#{config[:limit]}" : ''))
-    # #YELLOW
-    unless issued.empty?  # rubocop:disable UnlessElse
+    unless issued.empty?
       issued_sorted = issued.sort
       time = issued_sorted.pop
-      # #YELLOW
-      unless time.nil? # rubocop:disable UnlessElse
+      unless time.nil?
         uri += "/#{time}"
         uri += '?summarize=output' if config[:summarize]
         api_request(uri)
@@ -139,20 +137,17 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
   end
 
   def compare_pattern(aggregate)
-    # #YELLOW
-    if config[:summarize] && config[:pattern] # rubocop:disable GuardClause
+    if config[:summarize] && config[:pattern]
       regex = Regexp.new(config[:pattern])
       mappings = {}
       message = config[:message] || 'One of these is not like the others!'
-      # #YELLOW
-      aggregate[:outputs].each do |output, _count| # rubocop:disable Style/Next
+      aggregate[:outputs].each do |output, _count|
         matched = regex.match(output.to_s)
         unless matched.nil?
           key = matched[1]
           value = matched[2..-1]
           if mappings.key?(key)
-            # #YELLOW
-            unless mappings[key] == value  # rubocop:disable IfUnlessModifier, BlockNesting
+            unless mappings[key] == value # rubocop:disable Metrics/BlockNesting
               critical message + " (#{key})"
             end
           end
