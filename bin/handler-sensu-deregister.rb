@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-require 'rubygems' if RUBY_VERSION < '1.9.0'
+require 'rubygems'
 require 'sensu-handler'
 
 class Deregister < Sensu::Handler
