@@ -12,6 +12,7 @@
  * bin/check-aggregate.rb
  * bin/metrics-aggregate.rb
  * bin/metrics-delete-expired-stashes.rb
+ * bin/metrics-events.rb
  * bin/handler-sensu.rb
  * bin/handler-sensu-deregister.rb
 
