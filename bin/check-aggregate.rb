@@ -83,6 +83,13 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
          long: '--pattern PATTERN',
          description: 'A PATTERN to detect outliers'
 
+  option :honor_stash,
+         short: '-i',
+         long: '--honor-stash',
+         description: 'Checks that are stashed will be ignored from the aggregate',
+         boolean: true,
+         default: false
+
   option :message,
          short: '-M MESSAGE',
          long: '--message MESSAGE',
@@ -93,8 +100,6 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
                                                                 user: config[:user],
                                                                 password: config[:password])
     JSON.parse(request.get, symbolize_names: true)
-  rescue RestClient::ResourceNotFound
-    warning "Resource not found: #{resource}"
   rescue Errno::ECONNREFUSED
     warning 'Connection refused'
   rescue RestClient::RequestFailed
@@ -107,6 +112,30 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
     warning 'Sensu API returned invalid JSON'
   end
 
+  def honor_stash(aggregate)
+    if config[:honor_stash]
+      aggregate[:results].delete_if do |entry|
+        begin
+          api_request("/stashes/silence/#{entry[:client]}/#{config[:check]}")
+          if entry[:status] == 0
+            aggregate[:ok] = aggregate[:ok] - 1
+          elsif entry[:status] == 1
+            aggregate[:warning] = aggregate[:warning] - 1
+          elsif entry[:status] == 2
+            aggregate[:critical] = aggregate[:critical] - 1
+          else
+            aggregate[:unknown] = aggregate[:unknown] - 1
+          end
+          aggregate[:total] = aggregate[:total] - 1
+          true
+        rescue RestClient::ResourceNotFound
+          false
+        end
+      end
+    end
+    aggregate
+  end
+
   def acquire_aggregate
     uri = "/aggregates/#{config[:check]}"
     issued = api_request(uri + "?age=#{config[:age]}" + (config[:limit] ? "&limit=#{config[:limit]}" : ''))
@@ -114,9 +143,11 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
       issued_sorted = issued.sort
       time = issued_sorted.pop
       unless time.nil?
-        uri += "/#{time}"
-        uri += '?summarize=output' if config[:summarize]
-        api_request(uri)
+        uri += "/#{time}?"
+        uri += '&summarize=output' if config[:summarize]
+        uri += '&results=true' if config[:honor_stash]
+        aggregate = api_request(uri)
+        honor_stash(aggregate)
       else
         warning "No aggregates older than #{config[:age]} seconds"
       end
