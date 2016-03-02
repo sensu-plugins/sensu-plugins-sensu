@@ -127,8 +127,16 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
 
   def compare_thresholds(aggregate)
     percent_non_zero = (100 - (aggregate[:ok].to_f / aggregate[:total].to_f) * 100).to_i
-    message = config[:message] || 'Number of non-zero results exceeds threshold'
-    message += " (#{percent_non_zero}% non-zero)"
+    message = ''
+    if config[:summarize]
+      aggregate[:outputs].each do |output, count|
+        message << "\n" + output.to_s if count == 1
+      end
+    else
+      message = config[:message] || 'Number of non-zero results exceeds threshold'
+      message += " (#{percent_non_zero}% non-zero)"
+    end
+
     if config[:critical] && percent_non_zero >= config[:critical]
       critical message
     elsif config[:warning] && percent_non_zero >= config[:warning]
@@ -137,30 +145,33 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
   end
 
   def compare_pattern(aggregate)
-    if config[:summarize] && config[:pattern]
-      regex = Regexp.new(config[:pattern])
-      mappings = {}
-      message = config[:message] || 'One of these is not like the others!'
-      aggregate[:outputs].each do |output, _count|
-        matched = regex.match(output.to_s)
-        unless matched.nil?
-          key = matched[1]
-          value = matched[2..-1]
-          if mappings.key?(key)
-            unless mappings[key] == value # rubocop:disable Metrics/BlockNesting
-              critical message + " (#{key})"
-            end
+    regex = Regexp.new(config[:pattern])
+    mappings = {}
+    message = config[:message] || 'One of these is not like the others!'
+    aggregate[:outputs].each do |output, _count|
+      matched = regex.match(output.to_s)
+      unless matched.nil?
+        key = matched[1]
+        value = matched[2..-1]
+        if mappings.key?(key)
+          unless mappings[key] == value
+            critical message + " (#{key})"
           end
-          mappings[key] = value
         end
+        mappings[key] = value
       end
     end
   end
 
   def run
+    threshold = config[:critical] || config[:warning]
+    pattern = config[:summarize] && config[:pattern]
+    critical 'Misconfiguration: critical || warning || (summarize && pattern) must be set' unless threshold || pattern
+
     aggregate = acquire_aggregate
-    compare_thresholds(aggregate)
-    compare_pattern(aggregate)
+    compare_thresholds(aggregate) if threshold
+    compare_pattern(aggregate) if pattern
+
     ok 'Aggregate looks GOOD'
   end
 end
