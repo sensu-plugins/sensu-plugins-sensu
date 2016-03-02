@@ -32,7 +32,7 @@ Gem::Specification.new do |s|
   s.post_install_message   = 'You can use the embedded Ruby by setting EMBEDDED_RUBY=true in /etc/default/sensu'
   s.require_paths          = ['lib']
   s.required_ruby_version  = '>= 1.9.3'
-  s.signing_key            = File.expand_path(pvt_key) if $PROGRAM_NAME =~ /gem\z/
+  s.signing_key            = File.expand_path(pvt_key) if $PROGRAM_NAME.end_with?('gem')
   s.summary                = 'Sensu plugins for sensu'
   s.test_files             = s.files.grep(%r{^(test|spec|features)/})
   s.version                = SensuPluginsSensu::Version::VER_STRING
