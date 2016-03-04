@@ -57,7 +57,11 @@ class CheckSilenced < Sensu::Plugin::Metric::CLI::Graphite
 
   def api
     endpoint = URI.parse("http://#{@config[:host]}:#{@config[:port]}")
-    @config[:use_ssl?] ? endpoint.scheme = 'https' : endpoint.scheme = 'http'
+    endpoint.scheme = if @config[:use_ssl?]
+                        'https'
+                      else
+                        'http'
+                      end
     @api ||= RestClient::Resource.new(endpoint, timeout: 45)
   end
 
@@ -65,7 +69,7 @@ class CheckSilenced < Sensu::Plugin::Metric::CLI::Graphite
     all_stashes = JSON.parse(api['/stashes'].get)
     filtered_stashes = []
     all_stashes.each do |stash|
-      filtered_stashes << stash if stash['path'].match(/^#{@config[:filter]}\/.*/)
+      filtered_stashes << stash if stash['path'] =~ /^#{@config[:filter]}\/.*/
     end
     return filtered_stashes
   rescue Errno::ECONNREFUSED
