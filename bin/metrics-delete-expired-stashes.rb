@@ -57,11 +57,15 @@ class CheckSilenced < Sensu::Plugin::Metric::CLI::Graphite
 
   def api
     endpoint = URI.parse("http://#{@config[:host]}:#{@config[:port]}")
+<<<<<<< 2046b29ab5f493e6f170df9165d9c9aa180ef60a
     endpoint.scheme = if @config[:use_ssl?]
                         'https'
                       else
                         'http'
                       end
+=======
+    endpoint.scheme = (@config[:use_ssl?] ? 'https' : 'http')
+>>>>>>> update repo
     @api ||= RestClient::Resource.new(endpoint, timeout: 45)
   end
 

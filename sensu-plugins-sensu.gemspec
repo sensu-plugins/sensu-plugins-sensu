@@ -9,11 +9,9 @@ else
   require_relative 'lib/sensu-plugins-sensu'
 end
 
-#pvt_key = '~/.ssh/gem-private_key.pem'
-
 Gem::Specification.new do |s|
   s.authors                = ['Sensu-Plugins and contributors']
-  #s.cert_chain             = ['certs/sensu-plugins.pem']
+
   s.date                   = Date.today.to_s
   s.description            = 'This plugin provides monitoring and metrics for Sensu.'
   s.email                  = '<sensu-users@googlegroups.com>'
