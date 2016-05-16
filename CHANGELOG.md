@@ -7,6 +7,7 @@ This CHANGELOG follows the format listed at [Keep A Changelog](http://keepachang
 - check-aggregates.rb adding misconfiguration check to 
 - check-aggregates.rb If summarize is set and the threshold output is being used the alert will be the summarized results
 - check-aggregates.rb Added new flag to honor stashed checks. If -i is supplied and the threshold alert is being used it will remove any checks that are stashed
+- check-aggregates.rb Adding -k for https insecure mode
 
 ## [0.1.0] - 2016-01-08
 ### Added
