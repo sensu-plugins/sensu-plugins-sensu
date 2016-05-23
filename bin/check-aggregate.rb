@@ -71,7 +71,7 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
          boolean: true,
          description: 'Summarize check result output',
          default: false
-
+         
   option :collect_output,
          short: '-o',
          long: '--output',
@@ -85,10 +85,20 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
          description: 'PERCENT non-ok before warning',
          proc: proc(&:to_i)
 
+  option :warning_count,
+         long: '--warning_count INTEGER',
+         description: 'number of nodes in warning before warning',
+         proc: proc(&:to_i)
+
   option :critical,
          short: '-C PERCENT',
          long: '--critical PERCENT',
          description: 'PERCENT non-ok before critical',
+         proc: proc(&:to_i)
+
+  option :critical_count,
+         long: '--critical_count INTEGER',
+         description: 'number of node in critical before critical',
          proc: proc(&:to_i)
 
   option :pattern,
@@ -127,7 +137,7 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
   rescue JSON::ParserError
     warning 'Sensu API returned invalid JSON'
   end
-
+  
   def honor_stash(aggregate)
     aggregate[:results].delete_if do |entry|
       begin
@@ -195,30 +205,29 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
       warning message
     end
   end
-
-  def compare_pattern(aggregate)
-    regex = Regexp.new(config[:pattern])
-    mappings = {}
-    message = config[:message] || 'One of these is not like the others!'
-    aggregate[:outputs].each do |output, _count|
-      matched = regex.match(output.to_s)
-      unless matched.nil?
-        key = matched[1]
-        value = matched[2..-1]
-        if mappings.key?(key)
-          unless mappings[key] == value
-            critical message + " (#{key})"
-          end
-        end
-        mappings[key] = value
+  
+  def compare_thresholds_count(aggregate)
+    message = ''
+    if aggregate[:outputs]
+      aggregate[:outputs].each do |output, count|
+        message << "\n" + output.to_s if count == 1
       end
+    else
+      message = config[:message] || 'Number of nodes down exceeds threshold'
+    end
+
+    if config[:critical_count] && aggregate[:critical].to_i >= config[:critical_count]
+      critical message
+    elsif config[:warning_count] && aggregate[:warning].to_i >= config[:warning_count]
+      warning message
     end
   end
 
   def run
     threshold = config[:critical] || config[:warning]
+    threshold_count = config[:critical_count] || config[:warning_count]
     pattern = config[:summarize] && config[:pattern]
-    critical 'Misconfiguration: critical || warning || (summarize && pattern) must be set' unless threshold || pattern
+    critical 'Misconfiguration: critical || warning || (summarize && pattern) must be set' unless threshold || pattern || threshold_count
 
     aggregate = acquire_aggregate
     aggregate = honor_stash(aggregate) if config[:honor_stash]
@@ -226,6 +235,7 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
     aggregate = collect_output(aggregate) if config[:collect_output]
     compare_thresholds(aggregate) if threshold
     compare_pattern(aggregate) if pattern
+    compare_thresholds_count(aggregate) if threshold_count
 
     ok 'Aggregate looks GOOD'
   end
