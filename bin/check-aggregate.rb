@@ -206,6 +206,25 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
     end
   end
   
+  def compare_pattern(aggregate)
+    regex = Regexp.new(config[:pattern])
+    mappings = {}
+    message = config[:message] || 'One of these is not like the others!'
+    aggregate[:outputs].each do |output, _count|
+      matched = regex.match(output.to_s)
+      unless matched.nil?
+        key = matched[1]
+        value = matched[2..-1]
+        if mappings.key?(key)
+          unless mappings[key] == value
+            critical message + " (#{key})"
+          end
+        end
+        mappings[key] = value
+      end
+    end
+  end
+  
   def compare_thresholds_count(aggregate)
     message = ''
     if aggregate[:outputs]
