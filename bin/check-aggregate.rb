@@ -71,7 +71,7 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
          boolean: true,
          description: 'Summarize check result output',
          default: false
-         
+
   option :collect_output,
          short: '-o',
          long: '--output',
@@ -137,7 +137,7 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
   rescue JSON::ParserError
     warning 'Sensu API returned invalid JSON'
   end
-  
+
   def honor_stash(aggregate)
     aggregate[:results].delete_if do |entry|
       begin
@@ -205,7 +205,7 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
       warning message
     end
   end
-  
+
   def compare_pattern(aggregate)
     regex = Regexp.new(config[:pattern])
     mappings = {}
@@ -224,7 +224,7 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
       end
     end
   end
-  
+
   def compare_thresholds_count(aggregate)
     message = ''
     if aggregate[:outputs]
@@ -234,7 +234,7 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
     else
       message = config[:message] || 'Number of nodes down exceeds threshold'
     end
-
+    
     if config[:critical_count] && aggregate[:critical].to_i >= config[:critical_count]
       critical message
     elsif config[:warning_count] && aggregate[:warning].to_i >= config[:warning_count]
@@ -247,7 +247,7 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
     threshold_count = config[:critical_count] || config[:warning_count]
     pattern = config[:summarize] && config[:pattern]
     critical 'Misconfiguration: critical || warning || (summarize && pattern) must be set' unless threshold || pattern || threshold_count
-
+    
     aggregate = acquire_aggregate
     aggregate = honor_stash(aggregate) if config[:honor_stash]
     puts aggregate
