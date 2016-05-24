@@ -234,9 +234,9 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
       end
     else
       message = config[:message] || 'Number of nodes down exceeds threshold'
-      message += " (#{number_of_nodes_reporting_down} out of #{aggregate[:total].to_s} nodes reporting not ok)"
+      message += " (#{number_of_nodes_reporting_down} out of #{aggregate[:total]} nodes reporting not ok)"
     end
-    
+
     if config[:critical_count] && number_of_nodes_reporting_down >= config[:critical_count]
       critical message
     elsif config[:warning_count] && number_of_nodes_reporting_down >= config[:warning_count]
@@ -249,7 +249,7 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
     threshold_count = config[:critical_count] || config[:warning_count]
     pattern = config[:summarize] && config[:pattern]
     critical 'Misconfiguration: critical || warning || (summarize && pattern) must be set' unless threshold || pattern || threshold_count
-    
+
     aggregate = acquire_aggregate
     aggregate = honor_stash(aggregate) if config[:honor_stash]
     puts aggregate
