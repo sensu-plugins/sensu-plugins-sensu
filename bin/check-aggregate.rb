@@ -21,7 +21,7 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
          short: '-a URL',
          long: '--api URL',
          description: 'Sensu API URL',
-         default: 'http://localhost:4567'
+         default: ENV['SENSU_API'] ? ENV['SENSU_API'] + ':4567' : 'http://localhost:4567'
 
   option :insecure,
          short: '-k',
