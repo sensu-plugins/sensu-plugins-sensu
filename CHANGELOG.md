@@ -8,6 +8,8 @@ This CHANGELOG follows the format listed at [Keep A Changelog](http://keepachang
 - check-aggregates.rb If summarize is set and the threshold output is being used the alert will be the summarized results
 - check-aggregates.rb Added new flag to honor stashed checks. If -i is supplied and the threshold alert is being used it will remove any checks that are stashed
 - check-aggregates.rb Adding -k for https insecure mode
+- check-aggregates.rb Added config option to use environment var SENSU_API for -a 
+- check-aggregates.rb Added ability to use node down count instead of percentages
 
 ## [0.1.0] - 2016-01-08
 ### Added
