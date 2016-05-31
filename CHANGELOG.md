@@ -10,6 +10,7 @@ This CHANGELOG follows the format listed at [Keep A Changelog](http://keepachang
 - check-aggregates.rb Adding -k for https insecure mode
 - check-aggregates.rb Added config option to use environment var SENSU_API=hostname or SENSU_API_URL=hostname:port for -a 
 - check-aggregates.rb Added ability to use node down count instead of percentages
+- handler-sensu-deregister.rb Remove api_call event
 
 ## [0.1.0] - 2016-01-08
 ### Added
