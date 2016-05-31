@@ -6,11 +6,16 @@ require 'sensu-handler'
 class Deregister < Sensu::Handler
   def handle
     delete_sensu_client!
+    delete_sensu_event!
   end
 
   def delete_sensu_client!
     response = api_request(:DELETE, '/clients/' + @event['client']['name']).code
     deletion_status(response)
+  end
+
+  def delete_sensu_event!
+    response = api_request(:DELETE, '/events/' + @event['client']['name'] + '/api_call').code
   end
 
   def deletion_status(code)
