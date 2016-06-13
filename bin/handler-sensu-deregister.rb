@@ -25,4 +25,8 @@ class Deregister < Sensu::Handler
       puts "#{res}: Completely unsure of what happened!"
     end
   end
+
+  def filter
+    # override filter method to disable filtering of deregistration events
+  end
 end
