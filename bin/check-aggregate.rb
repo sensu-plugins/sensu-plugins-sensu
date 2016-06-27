@@ -175,6 +175,18 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
   end
 
   def acquire_aggregate
+    if api_request('/info')[:sensu][:version].split('.')[1] >= '24'
+      named_aggregate_results
+    else
+      aggregate_results
+    end
+  end
+
+  def named_aggregate_results
+    api_request("/aggregates/#{config[:check]}?max_age=#{config[:age]}")[:results]
+  end
+
+  def aggregate_results
     uri = "/aggregates/#{config[:check]}"
     issued = api_request(uri + "?age=#{config[:age]}" + (config[:limit] ? "&limit=#{config[:limit]}" : ''))
     unless issued.empty?
