@@ -183,7 +183,9 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
   end
 
   def named_aggregate_results
-    api_request("/aggregates/#{config[:check]}?max_age=#{config[:age]}")[:results]
+    results = api_request("/aggregates/#{config[:check]}?max_age=#{config[:age]}")[:results]
+    warning "No aggregates found in last #{config[:age]} seconds" if %w(ok warning critical unknown).all? { |x| results[x.to_sym] == 0 }
+    results
   end
 
   def aggregate_results
