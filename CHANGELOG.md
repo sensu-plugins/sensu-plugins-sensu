@@ -11,6 +11,7 @@ This CHANGELOG follows the format listed at [Keep A Changelog](http://keepachang
 - check-aggregates.rb Adding -k for https insecure mode
 - check-aggregates.rb Added config option to use environment var SENSU_API=hostname or SENSU_API_URL=hostname:port for -a 
 - check-aggregates.rb Added ability to use node down count instead of percentages
+- handler-sensu-deregister.rb: Overrode sensu-plugin's default `filter` method to make it a noop; deregistration events are one-time and shouldn't be filtered.
 
 ## [0.1.0] - 2016-01-08
 ### Added
