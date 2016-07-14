@@ -17,6 +17,9 @@ This CHANGELOG follows the format listed at [Keep A Changelog](http://keepachang
 - check-aggregates.rb: If summarize is set and the threshold output is being used the alert will contain the summarized results
 - handler-sensu-deregister.rb: Overrode sensu-plugin's default `filter` method to make it a noop; deregistration events are one-time and shouldn't be filtered
 
+### Removed
+- Remove Ruby 1.9.3 support; add Ruby 2.3.0 support
+
 ## [0.1.0] - 2016-01-08
 ### Added
 - added sensu-deregister handler for deregistering a sensu client upon request (see https://github.com/sensu/sensu-build/pull/148 for example).
