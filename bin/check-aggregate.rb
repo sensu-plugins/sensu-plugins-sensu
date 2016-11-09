@@ -258,15 +258,9 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
 
   def compare_thresholds_count(aggregate)
     number_of_nodes_reporting_down = aggregate[:total].to_i - aggregate[:ok].to_i
-    message = ''
-    if aggregate[:outputs]
-      aggregate[:outputs].each do |output, count|
-        message << "\n" + output.to_s if count == 1
-      end
-    else
-      message = config[:message] || 'Number of nodes down exceeds threshold'
-      message += " (#{number_of_nodes_reporting_down} out of #{aggregate[:total]} nodes reporting not ok)"
-    end
+    message = config[:message] || 'Number of nodes down exceeds threshold'
+    message += " (#{number_of_nodes_reporting_down} out of #{aggregate[:total]} nodes reporting not ok)"
+    message += "\n" + aggregate[:outputs] if aggregate[:outputs]
 
     if config[:critical_count] && number_of_nodes_reporting_down >= config[:critical_count]
       critical message
