@@ -187,7 +187,8 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
         output << entry[:output] + "\n" unless entry[:status] == 0
       end
     end
-    aggregate[:outputs] = [output]
+    aggregate[:outputs] = output unless output.empty?
+    aggregate
   end
 
   def acquire_aggregate
@@ -225,15 +226,9 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
 
   def compare_thresholds(aggregate)
     percent_non_zero = (100 - (aggregate[:ok].to_f / aggregate[:total].to_f) * 100).to_i
-    message = ''
-    if aggregate[:outputs]
-      aggregate[:outputs].each do |output, count|
-        message << "\n" + output.to_s if count == 1
-      end
-    else
-      message = config[:message] || 'Number of non-zero results exceeds threshold'
-      message += " (#{percent_non_zero}% non-zero)"
-    end
+    message = config[:message] || 'Number of non-zero results exceeds threshold'
+    message += " (#{percent_non_zero}% non-zero)"
+    message += "\n" + aggregate[:outputs] if aggregate[:outputs]
 
     if config[:critical] && percent_non_zero >= config[:critical]
       critical message
