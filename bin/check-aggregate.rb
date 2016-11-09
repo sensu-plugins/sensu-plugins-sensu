@@ -166,16 +166,32 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
     aggregate
   end
 
+  def use_named_aggregates?
+    api_request('/info')[:sensu][:version].split('.')[1] >= '24'
+  end
+
   def collect_output(aggregate)
     output = ''
-    aggregate[:results].each do |entry|
-      output << entry[:output] + "\n" unless entry[:status] == 0
+    if use_named_aggregates?
+      aggregate[:results] = []
+      [:critical, :warning].each do |s|
+        aggregate[:results] += api_request("/aggregates/#{config[:check]}/results/#{s}?max_age=#{config[:age]}") unless aggregate[s] == 0
+      end
+      aggregate[:results].each do |r|
+        r[:summary].each do |s|
+          output << "#{r[:check]} #{s[:clients]} #{s[:output]}"
+        end
+      end
+    else
+      aggregate[:results].each do |entry|
+        output << entry[:output] + "\n" unless entry[:status] == 0
+      end
     end
     aggregate[:outputs] = [output]
   end
 
   def acquire_aggregate
-    if api_request('/info')[:sensu][:version].split('.')[1] >= '24'
+    if use_named_aggregates?
       named_aggregate_results
     else
       aggregate_results
