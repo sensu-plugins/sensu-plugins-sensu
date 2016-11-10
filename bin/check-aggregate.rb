@@ -145,6 +145,7 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
   end
 
   def honor_stash(aggregate)
+    # FIXME: it's broken with named aggregates
     aggregate[:results].delete_if do |entry|
       begin
         api_request("/stashes/silence/#{entry[:client]}/#{config[:check]}")
@@ -171,20 +172,15 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
   end
 
   def collect_output(aggregate)
+    # works with named aggregates only
+    aggregate[:results] = []
+    [:critical, :warning].each do |s|
+      aggregate[:results] += api_request("/aggregates/#{config[:check]}/results/#{s}?max_age=#{config[:age]}") unless aggregate[s] == 0
+    end
     output = ''
-    if use_named_aggregates?
-      aggregate[:results] = []
-      [:critical, :warning].each do |s|
-        aggregate[:results] += api_request("/aggregates/#{config[:check]}/results/#{s}?max_age=#{config[:age]}") unless aggregate[s] == 0
-      end
-      aggregate[:results].each do |r|
-        r[:summary].each do |s|
-          output << "#{r[:check]} #{s[:clients]} #{s[:output]}"
-        end
-      end
-    else
-      aggregate[:results].each do |entry|
-        output << entry[:output] + "\n" unless entry[:status] == 0
+    aggregate[:results].each do |r|
+      r[:summary].each do |s|
+        output << "#{r[:check]} #{s[:clients]} #{s[:output]}"
       end
     end
     aggregate[:outputs] = output unless output.empty?
@@ -238,6 +234,7 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
   end
 
   def compare_pattern(aggregate)
+    # FIXME: it's broken with named aggregates
     regex = Regexp.new(config[:pattern])
     mappings = {}
     message = config[:message] || 'One of these is not like the others!'
