@@ -24,8 +24,9 @@
 # LICENSE for details.
 
 require 'sensu-plugin/metric/cli'
-require 'rest-client'
 require 'json'
+require 'net/http'
+require 'net/https'
 
 class AggregateMetrics < Sensu::Plugin::Metric::CLI::Graphite
   option :api,
@@ -68,20 +69,18 @@ class AggregateMetrics < Sensu::Plugin::Metric::CLI::Graphite
          description: 'Verbose output'
 
   def api_request(resource)
-    request = RestClient::Resource.new(config[:api] + resource, timeout: config[:timeout],
-                                                                user: config[:user],
-                                                                password: config[:password])
-    JSON.parse(request.get, symbolize_names: true)
-  rescue RestClient::ResourceNotFound
-    warning "Resource not found: #{resource}"
+    uri = URI.parse(config[:api])
+    http = Net::HTTP.new(uri.host, uri.port)
+    if uri.scheme == 'https'
+      http.use_ssl = true
+    end
+    req = Net::HTTP::Get.new(resource)
+    r = http.request(req)
+    JSON.parse(r.body)
   rescue Errno::ECONNREFUSED
     warning 'Connection refused'
-  rescue RestClient::RequestFailed
-    warning 'Request failed'
-  rescue RestClient::RequestTimeout
+  rescue Timeout::Error
     warning 'Connection timed out'
-  rescue RestClient::Unauthorized
-    warning 'Missing or incorrect Sensu API credentials'
   rescue JSON::ParserError
     warning 'Sensu API returned invalid JSON'
   end
@@ -90,32 +89,26 @@ class AggregateMetrics < Sensu::Plugin::Metric::CLI::Graphite
     uri = '/aggregates'
     checks = api_request(uri)
     puts "Checks: #{checks.inspect}" if config[:debug]
-    checks
+    checks.map { |x| x['name'] }
   end
 
   def get_aggregate(check)
     uri = "/aggregates/#{check}"
     issued = api_request(uri + "?age=#{config[:age]}")
-    unless issued.empty?
-      issued_sorted = issued.sort
-      time = issued_sorted.pop
-      unless time.nil?
-        uri += "/#{time}"
-        [time, api_request(uri)]
-      else
-        warning "No aggregates older than #{config[:age]} seconds"
-      end
-    else
+    if issued.empty?
       warning "No aggregates for #{check}"
+    else
+      issued
     end
   end
 
   def run
+    timestamp = Time.now.to_i
     acquire_checks.each do |check|
-      timestamp, aggregate = get_aggregate(check[:check])
-      puts "#{check[:check]} aggregates: #{aggregate}" if config[:debug]
-      aggregate.each do |result, count|
-        output "#{config[:scheme]}.#{check[:check]}.#{result}", count, timestamp
+      aggregate = get_aggregate(check)
+      puts "#{check} aggregates: #{aggregate}" if config[:debug]
+      aggregate['results'].each do |result, count|
+        output "#{config[:scheme]}.#{check}.#{result}", count, timestamp
       end
     end
     ok
