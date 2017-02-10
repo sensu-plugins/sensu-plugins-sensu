@@ -22,7 +22,7 @@ class Deregister < Sensu::Handler
     when '500'
       puts "500: Miscellaneous error when deleting #{@event['client']['name']}"
     else
-      puts "#{res}: Completely unsure of what happened!"
+      puts "Completely unsure of what happened, status code: #{code}"
     end
   end
 
