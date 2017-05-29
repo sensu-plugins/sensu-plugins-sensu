@@ -189,20 +189,24 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
     err_results = []
     if results[:critical] > 0
       critical_errors = api_request("/aggregates/#{config[:check]}/results/critical")
-      critical_errors.each {|x| x[:status] = 2 }
+      critical_errors.each do |error| 
+        error[:status] = 2
+      end
       err_results.concat(critical_errors)
     end
     if results[:warning] > 0
       warnings = api_request("/aggregates/#{config[:check]}/results/warning")
-      warnings.each {|x| x[:status] = 1 }
+      warnings.each do |error| 
+         error[:status] = 1
+      end
       err_results.concat(warnings)
     end
 
     results[:results] = []
-    for result in err_results
-      for summary in result[:summary]
-        for client in summary[:clients]
-          results[:results].push({:check=>result[:check], :client=>client, :status=>result[:status]})
+    err_results.each do |result|
+      result[:summary].each do |summary|
+        summary[:clients].each do |client|
+          results[:results].push(check: result[:check], client: client, status: result[:status])
         end
       end
     end
