@@ -196,7 +196,7 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
     end
     if results[:warning] > 0
       warnings = api_request("/aggregates/#{config[:check]}/results/warning")
-      warnings.each do |error| 
+      warnings.each do |error|
         error[:status] = 1
       end
       err_results.concat(warnings)
