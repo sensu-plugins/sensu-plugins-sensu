@@ -6,6 +6,7 @@ This CHANGELOG follows the format listed at [Keep A Changelog](http://keepachang
 ## [Unreleased]
 ### Added
 - check-aggregates.rb: Fixed ability to honor-stashed in Sensu 0.24
+- handler-sensu-deregister.rb: Fix undefined variable in case of API error.
 
 ## [1.0.0] - 2016-07-13
 ### Added
