@@ -5,6 +5,8 @@ This CHANGELOG follows the format listed at [Keep A Changelog](http://keepachang
 
 ## [Unreleased]
 - handler-sensu-deregister.rb: Fix undefined variable in case of API error.
+- check-aggregates.rb: Changed the default behaviour to alert with the severity of the aggregated checks.
+- check-aggregates.rb: Added new flag to ignore severities. If --ignore-severity is supplied all non-ok will count for critical, critical_count, warning and warning_count option.
 
 ## [1.0.0] - 2016-07-13
 ### Added
