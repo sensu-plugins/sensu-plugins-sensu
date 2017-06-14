@@ -262,7 +262,7 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
 
     if config[:ignore_severity]
       number_of_nodes_reporting_down = aggregate[:total].to_i - aggregate[:ok].to_i
-      if config[:critical_count] && number_of_nodes_reporting_down>= config[:critical_count]
+      if config[:critical_count] && number_of_nodes_reporting_down >= config[:critical_count]
         critical format(message, number_of_nodes_reporting_down, 'not ok')
       elsif config[:warning_count] && number_of_nodes_reporting_down >= config[:warning_count]
         warning format(message, number_of_nodes_reporting_down, 'not ok')
