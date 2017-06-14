@@ -221,17 +221,17 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
     if config[:ignore_severity]
       percent_non_zero = (100 - (aggregate[:ok].to_f / aggregate[:total].to_f) * 100).to_i
       if config[:critical] && percent_non_zero >= config[:critical]
-        critical message % [percent_non_zero, 'non-zero']
+        critical format(message, percent_non_zero, 'non-zero')
       elsif config[:warning] && percent_non_zero >= config[:warning]
-        warning message % [percent_non_zero, 'non-zero']
+        warning format(message, percent_non_zero, 'non-zero')
       end
     else
       percent_warning = (aggregate[:warning].to_f / aggregate[:total].to_f * 100).to_i
       percent_critical = (aggregate[:critical].to_f / aggregate[:total].to_f * 100).to_i
       if config[:critical] && percent_critical >= config[:critical]
-        critical message % [percent_critical, 'critical']
+        critical format(message, percent_critical, 'critical')
       elsif config[:warning] && percent_warning >= config[:warning]
-        warning message % [percent_warning, 'warning']
+        warning format(message, percent_warning, 'warning')
       end
     end
   end
@@ -263,18 +263,18 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
     if config[:ignore_severity]
       number_of_nodes_reporting_down = aggregate[:total].to_i - aggregate[:ok].to_i
       if config[:critical_count] && number_of_nodes_reporting_down>= config[:critical_count]
-        critical message % [number_of_nodes_reporting_down, 'not ok']
+        critical format(message, number_of_nodes_reporting_down, 'not ok')
       elsif config[:warning_count] && number_of_nodes_reporting_down >= config[:warning_count]
-        warning message % [number_of_nodes_reporting_down, 'not ok']
+        warning format(message, number_of_nodes_reporting_down, 'not ok')
       end
     else
       nodes_reporting_warning = aggregate[:warning].to_i
       nodes_reporting_critical = aggregate[:critical].to_i
 
       if config[:critical_count] && nodes_reporting_critical >= config[:critical_count]
-        critical message % [nodes_reporting_critical, 'critical']
+        critical format(message, nodes_reporting_critical, 'critical')
       elsif config[:warning_count] && nodes_reporting_warning >= config[:warning_count]
-        warning message % [nodes_reporting_warning, 'warning']
+        warning format(message, nodes_reporting_warning, 'warning')
       end
     end
   end
