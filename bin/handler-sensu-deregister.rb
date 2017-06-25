@@ -4,12 +4,30 @@ require 'rubygems'
 require 'sensu-handler'
 
 class Deregister < Sensu::Handler
+  option :invalidate,
+         description: 'Invalidate Client',
+         short: '-i',
+         long: '--invalidate',
+         default: false
+
+  option :invalidate_expire,
+         description: 'Invalidate Duration (seconds)',
+         short: '-d duration',
+         long: '--duration duration',
+         required: false
+
   def handle
     delete_sensu_client!
   end
 
   def delete_sensu_client!
-    response = api_request(:DELETE, '/clients/' + @event['client']['name']).code
+    if config[:invalidate] && config[:invalidate_expire]
+      response = api_request(:DELETE, '/clients/' + @event['client']['name'] + "?invalidate=#{config[:invalidate]}&#{config[:invalidate_expire]}").code
+    elsif config[:invalidate]
+      response = api_request(:DELETE, '/clients/' + @event['client']['name'] + "?invalidate=#{config[:invalidate]}").code
+    else
+      response = api_request(:DELETE, '/clients/' + @event['client']['name']).code
+    end
     deletion_status(response)
   end
 
