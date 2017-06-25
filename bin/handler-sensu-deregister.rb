@@ -23,8 +23,10 @@ class Deregister < Sensu::Handler
   def delete_sensu_client!
     if config[:invalidate] && config[:invalidate_expire]
       response = api_request(:DELETE, '/clients/' + @event['client']['name'] + "?invalidate=#{config[:invalidate]}&#{config[:invalidate_expire]}").code
-    else
+    elsif config[:invalidate]
       response = api_request(:DELETE, '/clients/' + @event['client']['name'] + "?invalidate=#{config[:invalidate]}").code
+    else
+      response = api_request(:DELETE, '/clients/' + @event['client']['name']).code
     end
     deletion_status(response)
   end
