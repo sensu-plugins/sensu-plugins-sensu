@@ -4,6 +4,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 This CHANGELOG follows the format listed at [Keep A Changelog](http://keepachangelog.com/)
 
 ## [Unreleased]
+- metrics-aggregates.rb: Refactored to support new named aggregates introduced in Sensu 0.24
 
 ## [1.1.0] - 2017-06-25
 ### Added
