@@ -5,7 +5,7 @@ This CHANGELOG follows the format listed at [Keep A Changelog](http://keepachang
 
 ## [Unreleased]
 ### Added
-- Ruby 2.4 support
+- Ruby 2.4 testing
 
 ## [1.1.0] - 2017-06-25
 ### Added
