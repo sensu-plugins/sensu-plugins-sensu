@@ -145,6 +145,7 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
   end
 
   def honor_stash(aggregate)
+    # FIXME: it's broken with named aggregates
     aggregate[:results].delete_if do |entry|
       begin
         api_request("/stashes/silence/#{entry[:client]}/#{config[:check]}")
@@ -166,16 +167,28 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
     aggregate
   end
 
+  def use_named_aggregates?
+    api_request('/info')[:sensu][:version].split('.')[1] >= '24'
+  end
+
   def collect_output(aggregate)
-    output = ''
-    aggregate[:results].each do |entry|
-      output << entry[:output] + "\n" unless entry[:status] == 0
+    # works with named aggregates only
+    aggregate[:results] = []
+    [:critical, :warning].each do |s|
+      aggregate[:results] += api_request("/aggregates/#{config[:check]}/results/#{s}?max_age=#{config[:age]}") unless aggregate[s] == 0
     end
-    aggregate[:outputs] = [output]
+    output = ''
+    aggregate[:results].each do |r|
+      r[:summary].each do |s|
+        output << "#{r[:check]} #{s[:clients]} #{s[:output]}"
+      end
+    end
+    aggregate[:outputs] = output unless output.empty?
+    aggregate
   end
 
   def acquire_aggregate
-    if api_request('/info')[:sensu][:version].split('.')[1] >= '24'
+    if use_named_aggregates?
       named_aggregate_results
     else
       aggregate_results
@@ -209,15 +222,9 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
 
   def compare_thresholds(aggregate)
     percent_non_zero = (100 - (aggregate[:ok].to_f / aggregate[:total].to_f) * 100).to_i
-    message = ''
-    if aggregate[:outputs]
-      aggregate[:outputs].each do |output, count|
-        message << "\n" + output.to_s if count == 1
-      end
-    else
-      message = config[:message] || 'Number of non-zero results exceeds threshold'
-      message += " (#{percent_non_zero}% non-zero)"
-    end
+    message = config[:message] || 'Number of non-zero results exceeds threshold'
+    message += " (#{percent_non_zero}% non-zero)"
+    message += "\n" + aggregate[:outputs] if aggregate[:outputs]
 
     if config[:critical] && percent_non_zero >= config[:critical]
       critical message
@@ -227,6 +234,7 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
   end
 
   def compare_pattern(aggregate)
+    # FIXME: it's broken with named aggregates
     regex = Regexp.new(config[:pattern])
     mappings = {}
     message = config[:message] || 'One of these is not like the others!'
@@ -247,15 +255,9 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
 
   def compare_thresholds_count(aggregate)
     number_of_nodes_reporting_down = aggregate[:total].to_i - aggregate[:ok].to_i
-    message = ''
-    if aggregate[:outputs]
-      aggregate[:outputs].each do |output, count|
-        message << "\n" + output.to_s if count == 1
-      end
-    else
-      message = config[:message] || 'Number of nodes down exceeds threshold'
-      message += " (#{number_of_nodes_reporting_down} out of #{aggregate[:total]} nodes reporting not ok)"
-    end
+    message = config[:message] || 'Number of nodes down exceeds threshold'
+    message += " (#{number_of_nodes_reporting_down} out of #{aggregate[:total]} nodes reporting not ok)"
+    message += "\n" + aggregate[:outputs] if aggregate[:outputs]
 
     if config[:critical_count] && number_of_nodes_reporting_down >= config[:critical_count]
       critical message
