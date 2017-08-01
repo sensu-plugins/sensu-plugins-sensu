@@ -7,6 +7,9 @@ This CHANGELOG follows the format listed at [Keep A Changelog](http://keepachang
 ### Added
 - Ruby 2.4 testing
 
+### Fixed
+- bin/check-aggregate.rb: Fix acquire_aggregate to make it work with sensu-server 1.x.x
+
 ## [1.1.0] - 2017-06-25
 ### Added
 - Add support for client invalidation on deregister handler (@Evesy)

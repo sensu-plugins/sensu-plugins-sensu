@@ -175,7 +175,8 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
   end
 
   def acquire_aggregate
-    if api_request('/info')[:sensu][:version].split('.')[1] >= '24'
+    major, minor = api_request('/info')[:sensu][:version].split('.')
+    if major >= '1' || minor >= '24'
       named_aggregate_results
     else
       aggregate_results
