@@ -88,23 +88,23 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
   option :warning,
          short: '-W PERCENT',
          long: '--warning PERCENT',
-         description: 'PERCENT non-ok before warning',
+         description: 'PERCENT warning before warning (can be change with --ignore-severity)',
          proc: proc(&:to_i)
 
   option :warning_count,
          long: '--warning_count INTEGER',
-         description: 'number of nodes in warning before warning',
+         description: 'number of nodes in warning before warning (can be change with --ignore-severity)',
          proc: proc(&:to_i)
 
   option :critical,
          short: '-C PERCENT',
          long: '--critical PERCENT',
-         description: 'PERCENT non-ok before critical',
+         description: 'PERCENT critical before critical (can be change with --ignore-severity)',
          proc: proc(&:to_i)
 
   option :critical_count,
          long: '--critical_count INTEGER',
-         description: 'number of node in critical before critical',
+         description: 'number of node in critical before critical (can be change with --ignore-severity)',
          proc: proc(&:to_i)
 
   option :pattern,
@@ -123,6 +123,12 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
          short: '-M MESSAGE',
          long: '--message MESSAGE',
          description: 'A custom error MESSAGE'
+
+  option :ignore_severity,
+         long: '--ignore-severity',
+         description: 'Ignore severities, all non-ok will count for critical, critical_count, warning and warning_count option',
+         boolean: true,
+         default: false
 
   def api_request(resource)
     verify_mode = OpenSSL::SSL::VERIFY_PEER
@@ -209,21 +215,25 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
   end
 
   def compare_thresholds(aggregate)
-    percent_non_zero = (100 - (aggregate[:ok].to_f / aggregate[:total].to_f) * 100).to_i
-    message = ''
-    if aggregate[:outputs]
-      aggregate[:outputs].each do |output, count|
-        message << "\n" + output.to_s if count == 1
+    message = config[:message] || 'Number of non-zero results exceeds threshold'
+    message += ' (%d%% %s)'
+    message += "\n" + aggregate[:outputs] if aggregate[:outputs]
+
+    if config[:ignore_severity]
+      percent_non_zero = (100 - (aggregate[:ok].to_f / aggregate[:total].to_f) * 100).to_i
+      if config[:critical] && percent_non_zero >= config[:critical]
+        critical format(message, percent_non_zero, 'non-zero')
+      elsif config[:warning] && percent_non_zero >= config[:warning]
+        warning format(message, percent_non_zero, 'non-zero')
       end
     else
-      message = config[:message] || 'Number of non-zero results exceeds threshold'
-      message += " (#{percent_non_zero}% non-zero)"
-    end
-
-    if config[:critical] && percent_non_zero >= config[:critical]
-      critical message
-    elsif config[:warning] && percent_non_zero >= config[:warning]
-      warning message
+      percent_warning = (aggregate[:warning].to_f / aggregate[:total].to_f * 100).to_i
+      percent_critical = (aggregate[:critical].to_f / aggregate[:total].to_f * 100).to_i
+      if config[:critical] && percent_critical >= config[:critical]
+        critical format(message, percent_critical, 'critical')
+      elsif config[:warning] && percent_warning >= config[:warning]
+        warning format(message, percent_warning, 'warning')
+      end
     end
   end
 
@@ -247,21 +257,26 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
   end
 
   def compare_thresholds_count(aggregate)
-    number_of_nodes_reporting_down = aggregate[:total].to_i - aggregate[:ok].to_i
-    message = ''
-    if aggregate[:outputs]
-      aggregate[:outputs].each do |output, count|
-        message << "\n" + output.to_s if count == 1
+    message = config[:message] || 'Number of nodes down exceeds threshold'
+    message += " (%s out of #{aggregate[:total]} nodes reporting %s)"
+    message += "\n" + aggregate[:outputs] if aggregate[:outputs]
+
+    if config[:ignore_severity]
+      number_of_nodes_reporting_down = aggregate[:total].to_i - aggregate[:ok].to_i
+      if config[:critical_count] && number_of_nodes_reporting_down >= config[:critical_count]
+        critical format(message, number_of_nodes_reporting_down, 'not ok')
+      elsif config[:warning_count] && number_of_nodes_reporting_down >= config[:warning_count]
+        warning format(message, number_of_nodes_reporting_down, 'not ok')
       end
     else
-      message = config[:message] || 'Number of nodes down exceeds threshold'
-      message += " (#{number_of_nodes_reporting_down} out of #{aggregate[:total]} nodes reporting not ok)"
-    end
+      nodes_reporting_warning = aggregate[:warning].to_i
+      nodes_reporting_critical = aggregate[:critical].to_i
 
-    if config[:critical_count] && number_of_nodes_reporting_down >= config[:critical_count]
-      critical message
-    elsif config[:warning_count] && number_of_nodes_reporting_down >= config[:warning_count]
-      warning message
+      if config[:critical_count] && nodes_reporting_critical >= config[:critical_count]
+        critical format(message, nodes_reporting_critical, 'critical')
+      elsif config[:warning_count] && nodes_reporting_warning >= config[:warning_count]
+        warning format(message, nodes_reporting_warning, 'warning')
+      end
     end
   end
 

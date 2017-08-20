@@ -4,6 +4,14 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 This CHANGELOG follows the format listed at [Keep A Changelog](http://keepachangelog.com/)
 
 ## [Unreleased]
+### Breaking Changes
+- check-aggregates.rb: Changed the default behaviour to alert with the severity of the aggregated checks.
+
+### Added
+- check-aggregates.rb: Added new flag to ignore severities. If --ignore-severity is supplied all non-ok will count for critical, critical_count, warning and warning_count option.
+
+### Fixed
+- handler-sensu-deregister.rb: Fix undefined variable in case of API error.
 
 ## [1.1.1] - 2017-08-01
 ### Added
