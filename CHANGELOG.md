@@ -1,4 +1,4 @@
-#Change Log
+# Change Log
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 This CHANGELOG follows the format listed at [Keep A Changelog](http://keepachangelog.com/)
@@ -12,6 +12,20 @@ This CHANGELOG follows the format listed at [Keep A Changelog](http://keepachang
 
 ### Fixed
 - handler-sensu-deregister.rb: Fix undefined variable in case of API error.
+
+## [1.1.1] - 2017-08-01
+### Added
+- Ruby 2.4 testing (@Evesy)
+
+### Fixed
+- bin/check-aggregate.rb: Fix acquire_aggregate to make it work with sensu-server 1.x.x (@nishiki)
+
+## [1.1.0] - 2017-06-25
+### Added
+- Add support for client invalidation on deregister handler (@Evesy)
+
+### Fixed
+- handler-sensu-deregister.rb: Fix undefined variable in case of API error. (@cyrilgdn)
 
 ## [1.0.0] - 2016-07-13
 ### Added
@@ -48,7 +62,9 @@ This CHANGELOG follows the format listed at [Keep A Changelog](http://keepachang
 ### Added
 - initial release
 
-[Unreleased]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/1.0.0...HEAD
+[Unreleased]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/1.1.1...HEAD
+[1.1.1]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/1.1.0...1.1.1
+[1.1.0]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/1.0.0...1.1.0
 [1.0.0]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/0.1.0...1.0.0
 [0.1.0]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/0.0.2...0.1.0
 [0.0.2]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/0.0.1...0.0.2
