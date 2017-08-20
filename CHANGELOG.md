@@ -4,6 +4,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 This CHANGELOG follows the format listed at [Keep A Changelog](http://keepachangelog.com/)
 
 ## [Unreleased]
+
+## [2.0.0] - 2017-08-20
 ### Breaking Changes
 - check-aggregates.rb: Changed the default behaviour to alert with the severity of the aggregated checks.
 
@@ -63,6 +65,7 @@ This CHANGELOG follows the format listed at [Keep A Changelog](http://keepachang
 - initial release
 
 [Unreleased]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/1.1.1...HEAD
+[2.0.0]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/1.1.1...2.0.0
 [1.1.1]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/1.1.0...1.1.1
 [1.1.0]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/1.0.0...1.1.0
 [1.0.0]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/0.1.0...1.0.0
