@@ -5,6 +5,10 @@ This CHANGELOG follows the format listed at [Keep A Changelog](http://keepachang
 
 ## [Unreleased]
 
+### Added
+- check-stale-results.rb: new script to check for stale results in sensu (@m4ce)
+- handler-purge-stale-results.rb: new handler to purge stale results from sensu (@m4ce)
+
 ## [2.0.0] - 2017-08-20
 ### Breaking Changes
 - check-aggregates.rb: Changed the default behaviour to alert with the severity of the aggregated checks.
