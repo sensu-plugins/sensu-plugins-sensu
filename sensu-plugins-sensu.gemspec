@@ -31,6 +31,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency 'sensu-plugin', '~> 1.2'
   s.add_runtime_dependency 'rest-client',       '1.8.0'
   s.add_runtime_dependency 'english',           '0.6.3'
+  s.add_runtime_dependency 'chronic_duration',  '0.10.6'
 
   s.add_development_dependency 'bundler',                   '~> 1.7'
   s.add_development_dependency 'codeclimate-test-reporter', '~> 0.4'
