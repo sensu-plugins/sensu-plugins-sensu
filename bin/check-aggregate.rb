@@ -129,6 +129,13 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
          description: 'Ignore severities, all non-ok will count for critical, critical_count, warning and warning_count option',
          boolean: true,
          default: false
+ 
+  option :switch_output,
+         short: '-R',
+         long: '--switch-output',
+         description: 'Display results hash at end of output message',
+         boolean: true,
+         default: false
 
   def api_request(resource)
     verify_mode = OpenSSL::SSL::VERIFY_PEER
@@ -218,7 +225,9 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
     message = config[:message] || 'Number of non-zero results exceeds threshold'
     message += ' (%d%% %s)'
     message += "\n" + aggregate[:outputs] if aggregate[:outputs]
-
+    if config[:switch_output]
+    message += "\n" + aggregate.to_s
+    end
     if config[:ignore_severity]
       percent_non_zero = (100 - (aggregate[:ok].to_f / aggregate[:total].to_f) * 100).to_i
       if config[:critical] && percent_non_zero >= config[:critical]
@@ -236,11 +245,15 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
       end
     end
   end
+   
 
   def compare_pattern(aggregate)
     regex = Regexp.new(config[:pattern])
     mappings = {}
     message = config[:message] || 'One of these is not like the others!'
+    if config[:switch_output]
+      message += "\n" + aggregate.to_s
+    end
     aggregate[:outputs].each do |output, _count|
       matched = regex.match(output.to_s)
       unless matched.nil?
@@ -260,7 +273,9 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
     message = config[:message] || 'Number of nodes down exceeds threshold'
     message += " (%s out of #{aggregate[:total]} nodes reporting %s)"
     message += "\n" + aggregate[:outputs] if aggregate[:outputs]
-
+    if config[:switch_output]
+      message += "\n" + aggregate.to_s
+    end
     if config[:ignore_severity]
       number_of_nodes_reporting_down = aggregate[:total].to_i - aggregate[:ok].to_i
       if config[:critical_count] && number_of_nodes_reporting_down >= config[:critical_count]
@@ -288,12 +303,15 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
 
     aggregate = acquire_aggregate
     aggregate = honor_stash(aggregate) if config[:honor_stash]
-    puts aggregate
     aggregate = collect_output(aggregate) if config[:collect_output]
     compare_thresholds(aggregate) if threshold
     compare_pattern(aggregate) if pattern
     compare_thresholds_count(aggregate) if threshold_count
-
-    ok 'Aggregate looks GOOD'
+    if config[:switch_output]
+        ok "Aggregate looks GOOD\n" + aggregate.to_s
+    else
+        puts aggregate
+        ok "Aggregate looks Good"
+    end
   end
 end
