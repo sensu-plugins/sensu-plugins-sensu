@@ -104,6 +104,6 @@ class CheckStaleResults < Sensu::Plugin::Check::CLI
       warning(msg)
     end
 
-    ok("No stale check results found (>= #{config[:warn]})")
+    ok "No stale check results found (>= #{config[:warn]})"
   end
 end
