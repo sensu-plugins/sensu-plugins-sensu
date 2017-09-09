@@ -108,6 +108,8 @@ class AggregateMetrics < Sensu::Plugin::Metric::CLI::Graphite
       aggregate = get_aggregate(check['name'])
       puts "#{check['name']} aggregates: #{aggregate}" if config[:debug]
       aggregate.each do |result, count|
+        # in 0.24 they changed the api results for aggregates this helps
+        # maintain backwards compatibility with 0.23 and newer versions.
         if count.is_a?(Hash)
           count.each do |x, y|
             output "#{config[:scheme]}.#{check['name']}.#{x}", y, timestamp
