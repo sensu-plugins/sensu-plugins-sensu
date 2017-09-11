@@ -1,11 +1,18 @@
 # Change Log
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-This CHANGELOG follows the format listed at [Keep A Changelog](http://keepachangelog.com/)
+This CHANGELOG follows the format listed at [Our CHANGELOG Guidelines ](https://github.com/sensu-plugins/community/blob/master/HOW_WE_CHANGELOG.md).
+Which is based on [Keep A Changelog](http://keepachangelog.com/)
 
 ## [Unreleased]
+
+## [2.1.1] - 2017-00-09
+### Fixed
+- metrics-aggregates.rb: Refactored to support new named aggregates introduced in Sensu 0.24 (@oba11)
+
 ### Changed
 - check-stale-results.rb: made invocation of ok more idiomatic (@rbanffy)
+- updated the location for our changelog guidelines (@majormoses)
 
 ## [2.1.0] - 2017-08-29
 ### Added
@@ -72,6 +79,7 @@ This CHANGELOG follows the format listed at [Keep A Changelog](http://keepachang
 - initial release
 
 [Unreleased]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/2.1.0...HEAD
+[2.1.1]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/2.1.0...2.1.1
 [2.1.0]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/2.0.0...2.1.0
 [2.0.0]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/1.1.1...2.0.0
 [1.1.1]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/1.1.0...1.1.1
