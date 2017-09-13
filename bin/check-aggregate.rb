@@ -130,6 +130,11 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
          boolean: true,
          default: false
 
+  option :stale_count,
+         long: '--stale-count INTEGER',
+         description: 'number of nodes with stale data before warning',
+         proc: proc(&:to_i)
+
   def api_request(resource)
     verify_mode = OpenSSL::SSL::VERIFY_PEER
     verify_mode = OpenSSL::SSL::VERIFY_NONE if config[:insecure]
@@ -280,6 +285,16 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
     end
   end
 
+  def compare_stale_count(aggregate)
+    message = config[:message] || 'Number of stale results exceeds threshold'
+    message += ' (%d %s)'
+    message += "\n" + aggregate[:outputs] if aggregate[:outputs]
+
+    if aggregate[:stale] >= config[:stale_count]
+      warning format(message, config[:stale_count], 'warning')
+    end
+  end
+
   def run
     threshold = config[:critical] || config[:warning]
     threshold_count = config[:critical_count] || config[:warning_count]
@@ -293,6 +308,7 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
     compare_thresholds(aggregate) if threshold
     compare_pattern(aggregate) if pattern
     compare_thresholds_count(aggregate) if threshold_count
+    compare_stale_count(aggregate) if config[:stale_count]
 
     ok 'Aggregate looks GOOD'
   end
