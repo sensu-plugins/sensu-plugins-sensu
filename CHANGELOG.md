@@ -5,6 +5,8 @@ This CHANGELOG follows the format listed at [Our CHANGELOG Guidelines ](https://
 Which is based on [Keep A Changelog](http://keepachangelog.com/)
 
 ## [Unreleased]
+### Changed
+- check-aggregates.rb: Add option to warn on stale data (@rbanffy)
 
 ## [2.1.1] - 2017-00-09
 ### Fixed
