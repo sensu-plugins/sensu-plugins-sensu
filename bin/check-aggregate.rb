@@ -130,6 +130,11 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
          boolean: true,
          default: false
 
+  option :stale,
+         long: '--stale PERCENT',
+         description: 'PERCENT stale before warning',
+         proc: proc(&:to_i)
+
   option :stale_count,
          long: '--stale-count INTEGER',
          description: 'number of nodes with stale data before warning',
@@ -285,13 +290,20 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
     end
   end
 
-  def compare_stale_count(aggregate)
+  def compare_stale(aggregate)
     message = config[:message] || 'Number of stale results exceeds threshold'
-    message += ' (%d %s)'
+    message += " (%s out of #{aggregate[:total]} nodes reporting %s)"
     message += "\n" + aggregate[:outputs] if aggregate[:outputs]
 
-    if aggregate[:stale] >= config[:stale_count]
-      warning format(message, config[:stale_count], 'warning')
+    if config[:stale]
+      percent_stale = (aggregate[:stale_count].to_f / aggregate[:total].to_f * 100).to_i
+      if percent_stale >= config[:stale]
+        warning format(message, percent_stale.to_s + '%', 'stale')
+      end
+    elsif config[:stale_count]
+      if aggregate[:stale] >= config[:stale_count]
+        warning format(message, aggregate[:stale].to_s, 'stale')
+      end
     end
   end
 
@@ -308,7 +320,7 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
     compare_thresholds(aggregate) if threshold
     compare_pattern(aggregate) if pattern
     compare_thresholds_count(aggregate) if threshold_count
-    compare_stale_count(aggregate) if config[:stale_count]
+    compare_stale(aggregate) if config[:stale] || config[:stale_count]
 
     ok 'Aggregate looks GOOD'
   end
