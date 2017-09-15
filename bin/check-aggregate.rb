@@ -130,8 +130,8 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
          boolean: true,
          default: false
 
-  option :stale,
-         long: '--stale PERCENT',
+  option :stale_percentage,
+         long: '--stale-percentage PERCENT',
          description: 'PERCENT stale before warning',
          proc: proc(&:to_i)
 
@@ -295,9 +295,9 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
     message += " (%s out of #{aggregate[:total]} nodes reporting %s)"
     message += "\n" + aggregate[:outputs] if aggregate[:outputs]
 
-    if config[:stale]
-      percent_stale = (aggregate[:stale_count].to_f / aggregate[:total].to_f * 100).to_i
-      if percent_stale >= config[:stale]
+    if config[:stale_percentage]
+      percent_stale = (aggregate[:stale].to_f / aggregate[:total].to_f * 100).to_i
+      if percent_stale >= config[:stale_percentage]
         warning format(message, percent_stale.to_s + '%', 'stale')
       end
     elsif config[:stale_count]
@@ -320,7 +320,7 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
     compare_thresholds(aggregate) if threshold
     compare_pattern(aggregate) if pattern
     compare_thresholds_count(aggregate) if threshold_count
-    compare_stale(aggregate) if config[:stale] || config[:stale_count]
+    compare_stale(aggregate) if config[:stale_percentage] || config[:stale_count]
 
     ok 'Aggregate looks GOOD'
   end
