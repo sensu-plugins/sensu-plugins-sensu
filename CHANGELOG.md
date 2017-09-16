@@ -5,8 +5,10 @@ This CHANGELOG follows the format listed at [Our CHANGELOG Guidelines ](https://
 Which is based on [Keep A Changelog](http://keepachangelog.com/)
 
 ## [Unreleased]
+
+## [2.2.0] - 2017-09-16
 ### Changed
-- check-aggregates.rb: Add option to warn on stale data (@rbanffy)
+- check-aggregates.rb: Add options `--stale-percentage` and `--stale-count` to warn on stale data (@rbanffy)
 
 ## [2.1.1] - 2017-00-09
 ### Fixed
@@ -80,7 +82,8 @@ Which is based on [Keep A Changelog](http://keepachangelog.com/)
 ### Added
 - initial release
 
-[Unreleased]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/2.1.0...HEAD
+[Unreleased]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/2.2.0...HEAD
+[2.2.0]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/2.1.0...2.2.0
 [2.1.1]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/2.1.0...2.1.1
 [2.1.0]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/2.0.0...2.1.0
 [2.0.0]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/1.1.1...2.0.0
