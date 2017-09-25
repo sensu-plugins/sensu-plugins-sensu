@@ -60,7 +60,7 @@ class CheckStaleResults < Sensu::Plugin::Check::CLI
     end.compact.reverse.join(' ')
   end
 
-  def api_request(method, path, _blk)
+  def api_request(method, path)
     unless settings.key?('api')
       raise 'api.json settings not found.'
     end
