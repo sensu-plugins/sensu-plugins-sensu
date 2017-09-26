@@ -6,8 +6,8 @@ Which is based on [Keep A Changelog](http://keepachangelog.com/)
 
 ## [Unreleased]
 
-### Breaking Change
-- handler-sensu.rb: In sensu version [0.26](https://github.com/sensu/sensu/blob/v1.0.0/CHANGELOG.md#features-4) clients create and subscribes to a unique client subscription named after it. It should look like "client:#{client_name}", this changes the fallback from "#{client_name}" to "client:#{client_name}" when the check does not have an attribute of `trigger_on`. (@Ssawa)
+### Changed
+- handler-sensu.rb: In sensu version [0.26](https://github.com/sensu/sensu/blob/v1.0.0/CHANGELOG.md#features-4) clients create and subscribes to a unique client subscription named after it. Adding new internal sensu client name in addition to old defaults keeping backwards compatibility. (@Ssawa)
 
 ## [2.2.1] - 2017-09-25
 ### Fixed
