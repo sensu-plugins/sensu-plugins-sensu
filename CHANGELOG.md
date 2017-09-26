@@ -5,6 +5,8 @@ This CHANGELOG follows the format listed at [Our CHANGELOG Guidelines ](https://
 Which is based on [Keep A Changelog](http://keepachangelog.com/)
 
 ## [Unreleased]
+### Fixed
+- check-stale-results.rb: Removed broken and unnecessary block argument that stopped the plugin from running (@portertech)
 
 ## [2.2.0] - 2017-09-16
 ### Changed
