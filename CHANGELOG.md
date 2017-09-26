@@ -6,6 +6,9 @@ Which is based on [Keep A Changelog](http://keepachangelog.com/)
 
 ## [Unreleased]
 
+### Changed
+- handler-sensu.rb: In sensu version [0.26](https://github.com/sensu/sensu/blob/v1.0.0/CHANGELOG.md#features-4) clients create and subscribes to a unique client subscription named after it. Adding new internal sensu client name in addition to old defaults keeping backwards compatibility. (@Ssawa)
+
 ## [2.2.1] - 2017-09-25
 ### Fixed
 - check-stale-results.rb: Removed broken and unnecessary block argument that stopped the plugin from running (@portertech)

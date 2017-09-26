@@ -89,7 +89,8 @@ class Remediator < Sensu::Handler
 
     remediation_checks = parse_remediations(remediations, occurrences, severity)
 
-    subscribers = @event['check']['trigger_on'] ? @event['check']['trigger_on'] : [client]
+    # at some point we should come back and remove the old default subscription of [client]
+    subscribers = @event['check']['trigger_on'] ? @event['check']['trigger_on'] : ['client:' + client, client]
     remediation_checks.each do |remediation_check|
       puts "REMEDIATION: Triggering remediation check '#{remediation_check}' "\
            "for #{[client].inspect}"
