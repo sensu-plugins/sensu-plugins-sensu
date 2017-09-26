@@ -6,6 +6,7 @@ Which is based on [Keep A Changelog](http://keepachangelog.com/)
 
 ## [Unreleased]
 
+## [2.2.2] - 2017-09-26
 ### Changed
 - handler-sensu.rb: In sensu version [0.26](https://github.com/sensu/sensu/blob/v1.0.0/CHANGELOG.md#features-4) clients create and subscribes to a unique client subscription named after it. Adding new internal sensu client name in addition to old defaults keeping backwards compatibility. (@Ssawa)
 
@@ -89,7 +90,8 @@ Which is based on [Keep A Changelog](http://keepachangelog.com/)
 ### Added
 - initial release
 
-[Unreleased]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/2.2.0...HEAD
+[Unreleased]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/2.2.2...HEAD
+[2.2.2]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/2.2.1...2.2.2
 [2.2.1]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/2.2.0...2.2.1
 [2.2.0]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/2.1.0...2.2.0
 [2.1.1]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/2.1.0...2.1.1
