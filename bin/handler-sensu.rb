@@ -81,19 +81,21 @@ class Remediator < Sensu::Handler
 
   def handle
     client = @event['client']['name']
+    check = @event['check']['name']
     remediations = @event['check']['remediation']
     occurrences = @event['occurrences']
+    trigger_on = @event['check']['trigger_on']
     severity = @event['check']['status'].to_i
-    puts "REMEDIATION: Evaluating remediation: #{client} "\
+    puts "REMEDIATION: Evaluating remediation: #{client} #{check} "\
          "#{remediations.inspect} #=#{occurrences} sev=#{severity}"
 
     remediation_checks = parse_remediations(remediations, occurrences, severity)
 
     # at some point we should come back and remove the old default subscription of [client]
-    subscribers = @event['check']['trigger_on'] ? @event['check']['trigger_on'] : ['client:' + client, client]
+    subscribers = trigger_on ? @event['check']['trigger_on'] : "client:#{client}"
     remediation_checks.each do |remediation_check|
       puts "REMEDIATION: Triggering remediation check '#{remediation_check}' "\
-           "for #{[client].inspect}"
+           "for #{[client].inspect} #{subscribers}"
       response = trigger_remediation(remediation_check, subscribers)
       puts "REMEDIATION: Received API Response (#{response.code}): "\
            "#{response.body}, exiting."
@@ -131,7 +133,7 @@ class Remediator < Sensu::Handler
   # Issue a check via the API
   def trigger_remediation(check, subscribers)
     api_request(:POST, '/request') do |req|
-      req.body = JSON.dump('check' => check, 'subscribers' => subscribers)
+      req.body = JSON.dump({'check' => check, 'subscribers' => [subscribers], 'creator' => 'SENSU', 'reason' => 'Try to fix' })
     end
   end
 end
