@@ -6,6 +6,7 @@ Which is based on [Keep A Changelog](http://keepachangelog.com/)
 
 ## [Unreleased]
 
+## [2.3.0] - 2017-10-03
 ### Changed
 - handler-sensu.rb: more log info, with creator and reason included in json. Check name information (REMEDIATION:) at sensu server logs. Tested on sensu > 0.29. (@betorvs)
 
@@ -93,7 +94,8 @@ Which is based on [Keep A Changelog](http://keepachangelog.com/)
 ### Added
 - initial release
 
-[Unreleased]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/2.2.2...HEAD
+[Unreleased]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/2.3.0...HEAD
+[2.3.0]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/2.2.2...2.3.0
 [2.2.2]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/2.2.1...2.2.2
 [2.2.1]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/2.2.0...2.2.1
 [2.2.0]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/2.1.0...2.2.0
