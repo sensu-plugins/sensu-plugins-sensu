@@ -6,6 +6,9 @@ Which is based on [Keep A Changelog](http://keepachangelog.com/)
 
 ## [Unreleased]
 
+### Changed
+- handler-sensu.rb: more log info, with creator and reason included in json. Check name information (REMEDIATION:) at sensu server logs. Tested on sensu > 0.29. (@betorvs)
+
 ## [2.2.2] - 2017-09-26
 ### Changed
 - handler-sensu.rb: In sensu version [0.26](https://github.com/sensu/sensu/blob/v1.0.0/CHANGELOG.md#features-4) clients create and subscribes to a unique client subscription named after it. Adding new internal sensu client name in addition to old defaults keeping backwards compatibility. (@Ssawa)
