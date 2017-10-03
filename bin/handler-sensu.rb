@@ -92,7 +92,7 @@ class Remediator < Sensu::Handler
     remediation_checks = parse_remediations(remediations, occurrences, severity)
 
     # at some point we should come back and remove the old default subscription of [client]
-    subscribers = trigger_on ? @event['check']['trigger_on'] : "client:#{client}"
+    subscribers = trigger_on ? @event['check']['trigger_on'] : ['client:' + client, client]
     remediation_checks.each do |remediation_check|
       puts "REMEDIATION: Triggering remediation check '#{remediation_check}' "\
            "for #{[client].inspect} #{subscribers}"
@@ -133,7 +133,7 @@ class Remediator < Sensu::Handler
   # Issue a check via the API
   def trigger_remediation(check, subscribers)
     api_request(:POST, '/request') do |req|
-      req.body = JSON.dump('check' => check, 'subscribers' => [subscribers], 'creator' => 'SENSU', 'reason' => 'Try to fix')
+      req.body = JSON.dump('check' => check, 'subscribers' => [subscribers], 'creator' => 'sensu-plugins-sensu', 'reason' => 'Auto remediation triggered')
     end
   end
 end
