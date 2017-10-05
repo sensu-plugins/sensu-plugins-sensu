@@ -6,9 +6,9 @@
 #
 
 require 'net/http'
-require 'json'
 require 'sensu-plugin/utils'
 require 'sensu-plugin/check/cli'
+require 'json'
 require 'chronic_duration'
 
 class CheckStaleResults < Sensu::Plugin::Check::CLI
