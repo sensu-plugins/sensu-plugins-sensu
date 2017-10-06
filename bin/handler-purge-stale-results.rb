@@ -31,7 +31,7 @@ class HandlerPurgeStaleResults < Sensu::Handler
   option :mail_recipient,
          description: 'Mail recipient',
          long: '--mail-recipient <ADDRESS>',
-         required => true
+         required: true
 
   def results
     res = []
