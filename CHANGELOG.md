@@ -6,7 +6,8 @@ Which is based on [Keep A Changelog](http://keepachangelog.com/)
 
 ## [Unreleased]
 ### Changed
-- update the require order for json so that it comes after sensu_plugin (@barryorourke)
+- check-stale-results.rb: update the require order for json so that it comes after sensu_plugin (@barryorourke)
+- handler-purge-stale-results.rb: fix invalid hash syntax resulting in NameError (@cwjohnston)
 
 ## [2.3.0] - 2017-10-03
 ### Changed
