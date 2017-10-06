@@ -5,6 +5,8 @@ This CHANGELOG follows the format listed at [Our CHANGELOG Guidelines ](https://
 Which is based on [Keep A Changelog](http://keepachangelog.com/)
 
 ## [Unreleased]
+### Changed
+- update the require order for json so that it comes after sensu_plugin (@barryorourke)
 
 ## [2.3.0] - 2017-10-03
 ### Changed
