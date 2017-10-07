@@ -5,6 +5,8 @@ This CHANGELOG follows the format listed at [Our CHANGELOG Guidelines ](https://
 Which is based on [Keep A Changelog](http://keepachangelog.com/)
 
 ## [Unreleased]
+
+## [2.3.1] - 2017-10-06
 ### Changed
 - check-stale-results.rb: update the require order for json so that it comes after sensu_plugin (@barryorourke)
 - handler-purge-stale-results.rb: fix invalid hash syntax resulting in NameError (@cwjohnston)
@@ -97,7 +99,8 @@ Which is based on [Keep A Changelog](http://keepachangelog.com/)
 ### Added
 - initial release
 
-[Unreleased]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/2.3.0...HEAD
+[Unreleased]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/2.3.1...HEAD
+[2.3.1]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/2.3.0...2.3.1
 [2.3.0]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/2.2.2...2.3.0
 [2.2.2]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/2.2.1...2.2.2
 [2.2.1]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/2.2.0...2.2.1
