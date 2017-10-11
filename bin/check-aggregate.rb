@@ -334,17 +334,13 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
     compare_thresholds(aggregate) if threshold
     compare_pattern(aggregate) if pattern
     compare_thresholds_count(aggregate) if threshold_count
-<<<<<<< HEAD
     compare_stale(aggregate) if config[:stale_percentage] || config[:stale_count]
 
-    ok 'Aggregate looks GOOD'
-=======
     if config[:switch_output]
         ok "Aggregate looks GOOD\n" + aggregate.to_s
     else
         puts aggregate
         ok "Aggregate looks Good"
     end
->>>>>>> eb856a4c7549... push switch output
   end
 end
