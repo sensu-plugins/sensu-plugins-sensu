@@ -129,10 +129,10 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
          description: 'Ignore severities, all non-ok will count for critical, critical_count, warning and warning_count option',
          boolean: true,
          default: false
- 
-  option :switch_output,
-         short: '-R',
-         long: '--switch-output',
+
+  option :debug,
+         short: '-D',
+         long: '--debug',
          description: 'Display results hash at end of output message',
          boolean: true,
          default: false
@@ -235,8 +235,8 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
     message = config[:message] || 'Number of non-zero results exceeds threshold'
     message += ' (%d%% %s)'
     message += "\n" + aggregate[:outputs] if aggregate[:outputs]
-    if config[:switch_output]
-    message += "\n" + aggregate.to_s
+    if config[:debug]
+      message += "\n" + aggregate.to_s
     end
     if config[:ignore_severity]
       percent_non_zero = (100 - (aggregate[:ok].to_f / aggregate[:total].to_f) * 100).to_i
@@ -255,13 +255,12 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
       end
     end
   end
-   
 
   def compare_pattern(aggregate)
     regex = Regexp.new(config[:pattern])
     mappings = {}
     message = config[:message] || 'One of these is not like the others!'
-    if config[:switch_output]
+    if config[:debug]
       message += "\n" + aggregate.to_s
     end
     aggregate[:outputs].each do |output, _count|
@@ -283,7 +282,7 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
     message = config[:message] || 'Number of nodes down exceeds threshold'
     message += " (%s out of #{aggregate[:total]} nodes reporting %s)"
     message += "\n" + aggregate[:outputs] if aggregate[:outputs]
-    if config[:switch_output]
+    if config[:debug]
       message += "\n" + aggregate.to_s
     end
     if config[:ignore_severity]
@@ -336,11 +335,10 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
     compare_thresholds_count(aggregate) if threshold_count
     compare_stale(aggregate) if config[:stale_percentage] || config[:stale_count]
 
-    if config[:switch_output]
-        ok "Aggregate looks GOOD\n" + aggregate.to_s
+    if config[:debug]
+      ok "Aggregate looks GOOD\n" + aggregate.to_s
     else
-        puts aggregate
-        ok "Aggregate looks Good"
+      ok 'Aggregate looks Good'
     end
   end
 end
