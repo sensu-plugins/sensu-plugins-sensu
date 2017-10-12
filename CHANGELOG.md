@@ -5,6 +5,8 @@ This CHANGELOG follows the format listed at [Our CHANGELOG Guidelines ](https://
 Which is based on [Keep A Changelog](http://keepachangelog.com/)
 
 ## [Unreleased]
+
+## [2.4.0] - 2017-10-12
 ### Added
 - `--debug` Option to display results hash at end of output message.
 ### Changed
@@ -104,6 +106,7 @@ Which is based on [Keep A Changelog](http://keepachangelog.com/)
 - initial release
 
 [Unreleased]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/2.3.1...HEAD
+[2.4.0]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/2.3.1...2.4.0
 [2.3.1]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/2.3.0...2.3.1
 [2.3.0]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/2.2.2...2.3.0
 [2.2.2]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/2.2.1...2.2.2
