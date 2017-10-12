@@ -5,6 +5,10 @@ This CHANGELOG follows the format listed at [Our CHANGELOG Guidelines ](https://
 Which is based on [Keep A Changelog](http://keepachangelog.com/)
 
 ## [Unreleased]
+### Added
+- `--debug` Option to display results hash at end of output message.
+### Changed
+- Previously the results hash were always displayed before the message, now they are displayed at the end of the message and only if the `--debug` option is used.
 
 ## [2.3.1] - 2017-10-06
 ### Changed
