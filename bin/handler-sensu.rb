@@ -133,7 +133,7 @@ class Remediator < Sensu::Handler
   # Issue a check via the API
   def trigger_remediation(check, subscribers)
     api_request(:POST, '/request') do |req|
-      req.body = JSON.dump('check' => check, 'subscribers' => [subscribers], 'creator' => 'sensu-plugins-sensu', 'reason' => 'Auto remediation triggered')
+      req.body = JSON.dump('check' => check, 'subscribers' => subscribers, 'creator' => 'sensu-plugins-sensu', 'reason' => 'Auto remediation triggered')
     end
   end
 end
