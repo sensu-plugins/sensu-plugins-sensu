@@ -5,6 +5,8 @@ This CHANGELOG follows the format listed at [Our CHANGELOG Guidelines ](https://
 Which is based on [Keep A Changelog](http://keepachangelog.com/)
 
 ## [Unreleased]
+### Changed
+- Removed brackets that were added around `subscribers` in the `trigger_remediation` method to fix remediation
 
 ## [2.4.0] - 2017-10-12
 ### Added
