@@ -132,8 +132,20 @@ class Remediator < Sensu::Handler
 
   # Issue a check via the API
   def trigger_remediation(check, subscribers)
+    if subscribers.class != Array
+      p "subscribers: #{subscribers} must be an array"
+      exit 3
+    elsif subscribers.first.class == Array
+      subscribers.flatten
+      p "subscribers: #{subscribers} must be a flat array of strings, we auto flattened: #{subscribers}"
+    end
     api_request(:POST, '/request') do |req|
-      req.body = JSON.dump('check' => check, 'subscribers' => subscribers, 'creator' => 'sensu-plugins-sensu', 'reason' => 'Auto remediation triggered')
+      req.body = JSON.dump(
+        'check' => check,
+        'subscribers' => subscribers,
+        'creator' => 'sensu-plugins-sensu',
+        'reason' => 'Auto remediation triggered'
+      )
     end
   end
 end
