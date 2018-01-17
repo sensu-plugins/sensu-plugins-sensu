@@ -131,12 +131,12 @@ class CheckAggregateOutput < Sensu::Plugin::Check::CLI
 
   def aggregate_results
     results = api_request("/aggregates/#{config[:check]}?max_age=#{config[:age]}")['results']
-    warning "No aggregates found in last #{config[:age]} seconds" if %w[ok warning critical unknown].all? { |x| results[x].zero? }
+    warning "No aggregates found in last #{config[:age]} seconds" if %w(ok warning critical unknown).all? { |x| results[x].zero? }
     results
   end
 
   def output_results
-    severities = %w[critical warning unknown]
+    severities = %w(critical warning unknown)
 
     outputs = {}
 
