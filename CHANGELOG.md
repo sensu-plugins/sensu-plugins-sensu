@@ -6,6 +6,9 @@ Which is based on [Keep A Changelog](http://keepachangelog.com/)
 
 ## [Unreleased]
 
+### Added
+- New check `check-aggregate-output.rb` with support for checking the Sensu aggregate api and returning the output. Only compatible with >0.24 versions of Sensu server.
+
 ## [2.4.0] - 2017-10-12
 ### Added
 - `--debug` Option to display results hash at end of output message.

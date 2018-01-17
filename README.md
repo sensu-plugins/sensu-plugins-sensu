@@ -10,6 +10,7 @@
 
 ## Files
  * bin/check-aggregate.rb
+ * bin/check-aggregate-output.rb
  * bin/check-stale-results.rb
  * bin/metrics-aggregate.rb
  * bin/metrics-delete-expired-stashes.rb
@@ -19,6 +20,28 @@
  * bin/handler-purge-stale-results.rb
 
 ## Usage
+
+### check-aggregate-output.rb
+
+A sensu plugin to monitor Sensu aggregates. Use it to alert on a number or percent of aggregate results being returned with a critical or warning severity, and get the associated output. The plugin accepts the following command line options:
+
+```
+Usage: ./check-aggregate-output.rb (options)
+    -A, --age SECONDS                Minimum aggregate age in SECONDS, time since check request issued
+    -a, --api URL                    Sensu API URL
+    -c, --check CHECK                Aggregate CHECK name (required)
+    -o, --output                     Collects all non-ok outputs
+    -C, --critical PERCENT           PERCENT critical before critical (can be change with --ignore-severity)
+        --critical_count INTEGER     number of node in critical before critical (can be change with --ignore-severity)
+        --ignore-severity            Ignore severities, all non-ok will count for critical, critical_count, warning and warning_count option
+    -k                               Enabling insecure connections
+    -M, --message MESSAGE            A custom error MESSAGE
+    -p, --password PASSWORD          Sensu API PASSWORD
+    -t, --timeout SECONDS            Sensu API connection timeout in SECONDS
+    -u, --user USER                  Sensu API USER
+    -W, --warning PERCENT            PERCENT warning before warning (can be change with --ignore-severity)
+        --warning_count INTEGER      number of nodes in warning before warning (can be change with --ignore-severity)
+```
 
 ### check-stale-results.rb
 
