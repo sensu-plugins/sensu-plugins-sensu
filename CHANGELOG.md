@@ -6,6 +6,9 @@ Which is based on [Keep A Changelog](http://keepachangelog.com/)
 
 ## [Unreleased]
 
+### Fixed
+- Removed brackets that were added around `subscribers` in the `trigger_remediation` method in #15. This resulted in a successful submission with an HTTP 202, however as this resulted in the subscribers key being an array of arrays which meant that the remediation never was actually scheduled. This fixes it by doing a couple of things, first we remove the extra brackets therefore solving the problem. That being said I decided to add some additional validation of the data to ensure that minimally what is being passed in is an array and the first element is a string, if that is not the case we either error out when unable to determine a fix with a helpful message or in the case of nested arrays attempt to flatten them. (@drhey) (@majormoses)
+
 ## [2.4.0] - 2017-10-12
 ### Added
 - `--debug` Option to display results hash at end of output message.
