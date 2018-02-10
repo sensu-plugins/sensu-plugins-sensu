@@ -16,7 +16,7 @@ require 'socket'
 
 include Sensu::Plugin::Utils
 
-class CheckSilenced < Sensu::Plugin::Metric::CLI::Graphite
+class CheckSilenced < Sensu::Plugin::Metric::CLI::Generic
   default_host = begin
                    settings['api']['host']
                  rescue
@@ -59,6 +59,11 @@ class CheckSilenced < Sensu::Plugin::Metric::CLI::Graphite
          description: 'Do not delete expired stashes',
          default: false
 
+  option :measurement,
+         description: 'Measurement for influxdb format',
+         long: '--measurement MEASUREMENT',
+         default: 'sensu.stashes'
+
   def api
     endpoint = URI.parse("http://#{@config[:host]}:#{@config[:port]}")
     endpoint.scheme = if @config[:use_ssl?]
@@ -71,7 +76,7 @@ class CheckSilenced < Sensu::Plugin::Metric::CLI::Graphite
   end
 
   def acquire_stashes
-    all_stashes = JSON.parse(api['/stashes'].get)
+    all_stashes = ::JSON.parse(api['/stashes'].get)
     filtered_stashes = []
     all_stashes.each do |stash|
       filtered_stashes << stash if stash['path'] =~ /^#{@config[:filter]}\/.*/
@@ -81,7 +86,7 @@ class CheckSilenced < Sensu::Plugin::Metric::CLI::Graphite
     warning 'Connection refused'
   rescue RestClient::RequestTimeout
     warning 'Connection timed out'
-  rescue JSON::ParserError
+  rescue ::JSON::ParserError
     warning 'Sensu API returned invalid JSON'
   end
 
@@ -102,6 +107,13 @@ class CheckSilenced < Sensu::Plugin::Metric::CLI::Graphite
         end
       end
     end
-    ok "#{config[:scheme]}.sensu.stashes.expired", @count
+    ok metric_name: 'expired',
+       value: @count,
+       graphite_metric_path: "#{config[:scheme]}.sensu.stashes.expired",
+       statsd_metric_name: "#{config[:scheme]}.sensu.stashes.expired",
+       influxdb_measurement: config[:measurement],
+       tags: {
+         host: Socket.gethostname
+       }
   end
 end
