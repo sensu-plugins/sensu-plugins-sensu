@@ -4,9 +4,11 @@
 #
 # Use the /events API to collect events and their severity.
 #
-# sensu.events.total 2 1234535436
-# sensu.events.warning 0 1234535436
-# sensu.events.critical 0 1234535436
+# sensu.events.total 156 1518300288
+# sensu.events.warning 6 1518300288
+# sensu.events.critical 64 1518300288
+# sensu.events.status.3 79 1518300288
+# sensu.events.status.127 7 1518300288
 #
 # ===
 #
@@ -23,7 +25,7 @@ require 'sensu-plugin/metric/cli'
 require 'rest-client'
 require 'json'
 
-class AggregateMetrics < Sensu::Plugin::Metric::CLI::Generic
+class EventMetrics < Sensu::Plugin::Metric::CLI::Generic
   option :api,
          short: '-a URL',
          long: '--api URL',

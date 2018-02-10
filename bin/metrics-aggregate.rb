@@ -5,11 +5,14 @@
 # Walks the /aggregates API to return metrics for
 # the aggregated output states of each check.
 #
+# sensu.aggregates.some_aggregated_check.clients 1 1380251999
+# sensu.aggregates.some_aggregated_check.checks 125 1380251999
 # sensu.aggregates.some_aggregated_check.ok 125 1380251999
 # sensu.aggregates.some_aggregated_check.warning  0 1380251999
 # sensu.aggregates.some_aggregated_check.critical 0 1380251999
 # sensu.aggregates.some_aggregated_check.unknown  0 1380251999
 # sensu.aggregates.some_aggregated_check.total  125 1380251999
+# sensu.aggregates.some_aggregated_check.stale  0 1380251999
 # ===
 #
 # Authors

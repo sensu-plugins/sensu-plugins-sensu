@@ -6,7 +6,7 @@ Which is based on [Keep A Changelog](http://keepachangelog.com/)
 
 ## [Unreleased]
 ### Changed
-- bin/metrics-*: Used `Sensu::Plugin::Metric::CLI::Generic` class instead of Graphite specific class for metrics.
+- `bin/metrics-*`: Used `Sensu::Plugin::Metric::CLI::Generic` class instead of Graphite specific class for metrics. (@bergerx)
 
 ## [2.4.1] - 2018-01-23
 ### Fixed
