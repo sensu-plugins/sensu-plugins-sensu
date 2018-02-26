@@ -32,6 +32,7 @@ Usage: check-stale-results.rb (options)
     -s, --stale <TIME>               Elapsed time to consider a check result result (default: 1d)
     -v, --verbose                    Be verbose
     -w, --warn <COUNT>               Warn if number of stale check results exceeds COUNT (default: 1)
+        --ssl                        Use ssl
 ```
 
 the --stale command line option accepts elapsed times formatted as documented in https://github.com/hpoydar/chronic_duration.

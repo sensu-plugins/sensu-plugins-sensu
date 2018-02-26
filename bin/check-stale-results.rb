@@ -42,6 +42,12 @@ class CheckStaleResults < Sensu::Plugin::Check::CLI
          proc: proc(&:to_i),
          default: nil
 
+  option :ssl,
+         description: 'Use SSL',
+         long: '--ssl',
+         boolean: true,
+         default: false
+
   def initialize
     super
 
@@ -66,6 +72,7 @@ class CheckStaleResults < Sensu::Plugin::Check::CLI
     end
     http = Net::HTTP.new(settings['api']['host'], settings['api']['port'])
     req = net_http_req_class(method).new(path)
+    http.use_ssl = true if config[:ssl]
     if settings['api']['user'] && settings['api']['password']
       req.basic_auth(settings['api']['user'], settings['api']['password'])
     end

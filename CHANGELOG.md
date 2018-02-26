@@ -5,6 +5,8 @@ This CHANGELOG follows the format listed at [Our CHANGELOG Guidelines ](https://
 Which is based on [Keep A Changelog](http://keepachangelog.com/)
 
 ## [Unreleased]
+### Changed
+- check-stale-results.rb: added option (--ssl) to support ssl communication when running stale checks.
 
 ## [2.4.1] - 2018-01-23
 ### Fixed
