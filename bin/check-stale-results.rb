@@ -6,6 +6,7 @@
 #
 
 require 'net/http'
+require 'uri'
 require 'sensu-plugin/utils'
 require 'sensu-plugin/check/cli'
 require 'json'
@@ -42,13 +43,6 @@ class CheckStaleResults < Sensu::Plugin::Check::CLI
          proc: proc(&:to_i),
          default: nil
 
-  option :protocol,
-         description: 'Protocol for communication http/https',
-         short: '-p PROTOCOL',
-         long: '--protocol PROTOCOL',
-         default: 'http',
-         in: %w(http https)
-
   def initialize
     super
 
@@ -67,23 +61,27 @@ class CheckStaleResults < Sensu::Plugin::Check::CLI
     end.compact.reverse.join(' ')
   end
 
-  def api_request(method, path)
+  def api_request(path)
     unless settings.key?('api')
       raise 'api.json settings not found.'
     end
-    http = Net::HTTP.new(settings['api']['host'], settings['api']['port'])
-    req = net_http_req_class(method).new(path)
-    http.use_ssl = true if config[:protocol] == 'https'
-    if settings['api']['user'] && settings['api']['password']
-      req.basic_auth(settings['api']['user'], settings['api']['password'])
+    protocol = (settings['api'].key?('protocol') ? settings['api']['protocol'] : 'http')
+    uri = URI(protocol + '://' + settings['api']['host'] + ':' + settings['api']['port'].to_s + path)
+    response = nil
+    Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https') do |http|
+      request = Net::HTTP::Get.new uri
+      if settings['api']['user'] && settings['api']['password']
+        request.basic_auth(settings['api']['user'], settings['api']['password'])
+      end
+      yield(request) if block_given?
+      response = http.request request # Net::HTTPResponse object
     end
-    yield(req) if block_given?
-    http.request(req)
+    response
   end
 
   def results
     res = []
-    req = api_request(:GET, '/results')
+    req = api_request('/results')
     res = JSON.parse(req.body) if req && req.code == '200'
     res
   end
