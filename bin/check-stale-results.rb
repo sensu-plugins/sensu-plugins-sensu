@@ -62,8 +62,9 @@ class CheckStaleResults < Sensu::Plugin::Check::CLI
   end
 
   def get_uri(path)
-    protocol = (settings['api'].key?('protocol') ? settings['api']['protocol'] : 'http')
-    URI("#{protocol}://#{settings['api']['host']}:#{settings['api']['port']}#{path}")
+    protocol = (settings['api']['host'] =~ /^https:\/\// ? 'https' : 'http')
+    host = (protocol == 'https' ? settings['api']['host'][8..-1] : settings['api']['host'])
+    URI("#{protocol}://#{host}:#{settings['api']['port']}#{path}")
   end
 
   def api_request(method, path)
@@ -71,16 +72,14 @@ class CheckStaleResults < Sensu::Plugin::Check::CLI
       raise 'api.json settings not found.'
     end
     uri = get_uri(path)
-    response = nil
     Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https') do |http|
       request = net_http_req_class(method).new(path)
       if settings['api']['user'] && settings['api']['password']
         request.basic_auth(settings['api']['user'], settings['api']['password'])
       end
       yield(request) if block_given?
-      response = http.request request # Net::HTTPResponse object
+      http.request request # Net::HTTPResponse object
     end
-    response
   end
 
   def results
