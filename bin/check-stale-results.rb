@@ -61,12 +61,16 @@ class CheckStaleResults < Sensu::Plugin::Check::CLI
     end.compact.reverse.join(' ')
   end
 
+  def get_uri(path)
+    protocol = (settings['api'].key?('protocol') ? settings['api']['protocol'] : 'http')
+    uri = URI(protocol + '://' + settings['api']['host'] + ':' + settings['api']['port'].to_s + path)
+  end
+
   def api_request(path)
     unless settings.key?('api')
       raise 'api.json settings not found.'
     end
-    protocol = (settings['api'].key?('protocol') ? settings['api']['protocol'] : 'http')
-    uri = URI(protocol + '://' + settings['api']['host'] + ':' + settings['api']['port'].to_s + path)
+    uri = get_uri(path)
     response = nil
     Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https') do |http|
       request = Net::HTTP::Get.new uri
