@@ -64,6 +64,7 @@ class CheckStaleResults < Sensu::Plugin::Check::CLI
   def get_uri(path)
     protocol = (settings['api'].key?('protocol') ? settings['api']['protocol'] : 'http')
     uri = URI(protocol + '://' + settings['api']['host'] + ':' + settings['api']['port'].to_s + path)
+    uri
   end
 
   def api_request(path)
