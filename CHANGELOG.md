@@ -5,6 +5,8 @@ This CHANGELOG follows the format listed at [Our CHANGELOG Guidelines ](https://
 Which is based on [Keep A Changelog](http://keepachangelog.com/)
 
 ## [Unreleased]
+### Changed
+- check-stale-results.rb: support https protocol via api/host declaration
 
 ## [2.4.1] - 2018-01-23
 ### Fixed

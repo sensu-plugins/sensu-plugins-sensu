@@ -6,6 +6,7 @@
 #
 
 require 'net/http'
+require 'uri'
 require 'sensu-plugin/utils'
 require 'sensu-plugin/check/cli'
 require 'json'
@@ -60,17 +61,25 @@ class CheckStaleResults < Sensu::Plugin::Check::CLI
     end.compact.reverse.join(' ')
   end
 
+  def get_uri(path)
+    protocol = (settings['api']['host'] =~ /^https:\/\// ? 'https' : 'http')
+    host = (protocol == 'https' ? settings['api']['host'][8..-1] : settings['api']['host'])
+    URI("#{protocol}://#{host}:#{settings['api']['port']}#{path}")
+  end
+
   def api_request(method, path)
     unless settings.key?('api')
       raise 'api.json settings not found.'
     end
-    http = Net::HTTP.new(settings['api']['host'], settings['api']['port'])
-    req = net_http_req_class(method).new(path)
-    if settings['api']['user'] && settings['api']['password']
-      req.basic_auth(settings['api']['user'], settings['api']['password'])
+    uri = get_uri(path)
+    Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https') do |http|
+      request = net_http_req_class(method).new(path)
+      if settings['api']['user'] && settings['api']['password']
+        request.basic_auth(settings['api']['user'], settings['api']['password'])
+      end
+      yield(request) if block_given?
+      http.request request # Net::HTTPResponse object
     end
-    yield(req) if block_given?
-    http.request(req)
   end
 
   def results
