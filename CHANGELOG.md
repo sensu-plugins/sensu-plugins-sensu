@@ -5,6 +5,8 @@ This CHANGELOG follows the format listed at [Our CHANGELOG Guidelines ](https://
 Which is based on [Keep A Changelog](http://keepachangelog.com/)
 
 ## [Unreleased]
+
+## [2.5.0] - 2018-03-06
 ### Changed
 - check-stale-results.rb: support https protocol via api/host declaration
 
@@ -115,6 +117,7 @@ Which is based on [Keep A Changelog](http://keepachangelog.com/)
 - initial release
 
 [Unreleased]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/2.4.1...HEAD
+[2.5.0]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/2.4.1...2.5.0
 [2.4.1]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/2.4.0...2.4.1
 [2.4.0]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/2.3.1...2.4.0
 [2.3.1]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/2.3.0...2.3.1
