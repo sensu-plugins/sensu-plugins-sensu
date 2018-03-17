@@ -4,9 +4,11 @@
 #
 # Use the /events API to collect events and their severity.
 #
-# sensu.events.total 2 1234535436
-# sensu.events.warning 0 1234535436
-# sensu.events.critical 0 1234535436
+# sensu.events.total 156 1518300288
+# sensu.events.warning 6 1518300288
+# sensu.events.critical 64 1518300288
+# sensu.events.status.3 79 1518300288
+# sensu.events.status.127 7 1518300288
 #
 # ===
 #
@@ -23,7 +25,7 @@ require 'sensu-plugin/metric/cli'
 require 'rest-client'
 require 'json'
 
-class AggregateMetrics < Sensu::Plugin::Metric::CLI::Graphite
+class EventMetrics < Sensu::Plugin::Metric::CLI::Generic
   option :api,
          short: '-a URL',
          long: '--api URL',
@@ -52,6 +54,11 @@ class AggregateMetrics < Sensu::Plugin::Metric::CLI::Graphite
          long: '--scheme SCHEME',
          default: "#{Socket.gethostname}.sensu.events"
 
+  option :measurement,
+         description: 'Measurement for influxdb format',
+         long: '--measurement MEASUREMENT',
+         default: 'sensu.events'
+
   option :debug,
          long: '--debug',
          description: 'Verbose output'
@@ -60,7 +67,7 @@ class AggregateMetrics < Sensu::Plugin::Metric::CLI::Graphite
     request = RestClient::Resource.new(config[:api] + resource, timeout: config[:timeout],
                                                                 user: config[:user],
                                                                 password: config[:password])
-    JSON.parse(request.get, symbolize_names: true)
+    ::JSON.parse(request.get, symbolize_names: true)
   rescue RestClient::ResourceNotFound
     warning "Resource not found: #{resource}"
   rescue Errno::ECONNREFUSED
@@ -71,7 +78,7 @@ class AggregateMetrics < Sensu::Plugin::Metric::CLI::Graphite
     warning 'Connection timed out'
   rescue RestClient::Unauthorized
     warning 'Missing or incorrect Sensu API credentials'
-  rescue JSON::ParserError
+  rescue ::JSON::ParserError
     warning 'Sensu API returned invalid JSON'
   end
 
@@ -100,14 +107,28 @@ class AggregateMetrics < Sensu::Plugin::Metric::CLI::Graphite
       status_count[event[:check][:status]] += 1
     end
 
-    output "#{config[:scheme]}.total", total_count, timestamp
+    output metric_name: 'total_events_count',
+           value: total_count,
+           graphite_metric_path: "#{config[:scheme]}.total",
+           statsd_metric_name: "#{config[:scheme]}.total",
+           influxdb_measurement: config[:measurement],
+           tags: {
+             host: Socket.gethostname
+           },
+           timestamp: timestamp
+
     status_count.each do |status, count|
-      name = status_names[status]
-      if name
-        output "#{config[:scheme]}.#{name}", count, timestamp
-      else
-        output "#{config[:scheme]}.status.#{status}", count, timestamp
-      end
+      name = status_names[status] || "status.#{status}"
+      output metric_name: 'event_count',
+             value: count,
+             graphite_metric_path: "#{config[:scheme]}.#{name}",
+             statsd_metric_name: "#{config[:scheme]}.#{name}",
+             influxdb_measurement: config[:measurement],
+             tags: {
+               host: Socket.gethostname,
+               event_status: name
+             },
+             timestamp: timestamp
     end
 
     ok

@@ -5,11 +5,14 @@
 # Walks the /aggregates API to return metrics for
 # the aggregated output states of each check.
 #
+# sensu.aggregates.some_aggregated_check.clients 1 1380251999
+# sensu.aggregates.some_aggregated_check.checks 125 1380251999
 # sensu.aggregates.some_aggregated_check.ok 125 1380251999
 # sensu.aggregates.some_aggregated_check.warning  0 1380251999
 # sensu.aggregates.some_aggregated_check.critical 0 1380251999
 # sensu.aggregates.some_aggregated_check.unknown  0 1380251999
 # sensu.aggregates.some_aggregated_check.total  125 1380251999
+# sensu.aggregates.some_aggregated_check.stale  0 1380251999
 # ===
 #
 # Authors
@@ -28,7 +31,7 @@ require 'json'
 require 'net/http'
 require 'net/https'
 
-class AggregateMetrics < Sensu::Plugin::Metric::CLI::Graphite
+class AggregateMetrics < Sensu::Plugin::Metric::CLI::Generic
   option :api,
          short: '-a URL',
          long: '--api URL',
@@ -60,9 +63,14 @@ class AggregateMetrics < Sensu::Plugin::Metric::CLI::Graphite
          proc: proc(&:to_i)
 
   option :scheme,
-         description: 'Metric naming scheme',
+         description: 'Metric naming scheme for graphite format',
          long: '--scheme SCHEME',
          default: "#{Socket.gethostname}.sensu.aggregates"
+
+  option :measurement,
+         description: 'Measurement for influxdb format',
+         long: '--measurement MEASUREMENT',
+         default: 'sensu.aggregates'
 
   option :debug,
          long: '--debug',
@@ -76,12 +84,12 @@ class AggregateMetrics < Sensu::Plugin::Metric::CLI::Graphite
     end
     req = Net::HTTP::Get.new(resource)
     r = http.request(req)
-    JSON.parse(r.body)
+    ::JSON.parse(r.body)
   rescue Errno::ECONNREFUSED
     warning 'Connection refused'
   rescue Timeout::Error
     warning 'Connection timed out'
-  rescue JSON::ParserError
+  rescue ::JSON::ParserError
     warning 'Sensu API returned invalid JSON'
   end
 
@@ -112,10 +120,28 @@ class AggregateMetrics < Sensu::Plugin::Metric::CLI::Graphite
         # maintain backwards compatibility with 0.23 and newer versions.
         if count.is_a?(Hash)
           count.each do |x, y|
-            output "#{config[:scheme]}.#{check['name']}.#{x}", y, timestamp
+            output metric_name: x,
+                   value: y,
+                   graphite_metric_path: "#{config[:scheme]}.#{check['name']}.#{x}",
+                   statsd_metric_name: "#{config[:scheme]}.#{check['name']}.#{x}",
+                   influxdb_measurement: config[:measurement],
+                   tags: {
+                     check: check['name'],
+                     host: Socket.gethostname
+                   },
+                   timestamp: timestamp
           end
         else
-          output "#{config[:scheme]}.#{check['name']}.#{result}", count, timestamp
+          output metric_name: result,
+                 value: count,
+                 graphite_metric_path: "#{config[:scheme]}.#{check['name']}.#{result}",
+                 statsd_metric_name: "#{config[:scheme]}.#{check['name']}.#{result}",
+                 influxdb_measurement: config[:measurement],
+                 tags: {
+                   check: check['name'],
+                   host: Socket.gethostname
+                 },
+                 timestamp: timestamp
         end
       end
     end

@@ -5,6 +5,10 @@ This CHANGELOG follows the format listed at [Our CHANGELOG Guidelines ](https://
 Which is based on [Keep A Changelog](http://keepachangelog.com/)
 
 ## [Unreleased]
+### Changed
+- `bin/metrics-*`: Used `Sensu::Plugin::Metric::CLI::Generic` class instead of Graphite specific class for metrics. (@bergerx)
+### Breaking Change
+- bumped dependency of `sensu-plugin` to 2.x you can read about it [here](https://github.com/sensu-plugins/sensu-plugin/blob/master/CHANGELOG.md#v200---2017-03-29)
 
 ## [2.5.0] - 2018-03-06
 ### Changed
