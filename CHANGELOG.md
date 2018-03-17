@@ -5,10 +5,12 @@ This CHANGELOG follows the format listed at [Our CHANGELOG Guidelines ](https://
 Which is based on [Keep A Changelog](http://keepachangelog.com/)
 
 ## [Unreleased]
-### Changed
-- `bin/metrics-*`: Used `Sensu::Plugin::Metric::CLI::Generic` class instead of Graphite specific class for metrics. (@bergerx)
+
 ### Breaking Change
 - bumped dependency of `sensu-plugin` to 2.x you can read about it [here](https://github.com/sensu-plugins/sensu-plugin/blob/master/CHANGELOG.md#v200---2017-03-29)
+
+### Changed
+- `bin/metrics-*`: Used `Sensu::Plugin::Metric::CLI::Generic` class instead of Graphite specific class for metrics. (@bergerx)
 
 ## [2.5.0] - 2018-03-06
 ### Changed
@@ -120,7 +122,8 @@ Which is based on [Keep A Changelog](http://keepachangelog.com/)
 ### Added
 - initial release
 
-[Unreleased]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/2.4.1...HEAD
+[Unreleased]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/3.0.0...HEAD
+[3.0.0]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/2.5.0...3.0.0
 [2.5.0]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/2.4.1...2.5.0
 [2.4.1]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/2.4.0...2.4.1
 [2.4.0]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/2.3.1...2.4.0
