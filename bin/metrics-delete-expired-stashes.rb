@@ -1,4 +1,6 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: false
+
 #
 # Delete stashes when their 'expires' timestamp is exceeded
 # ===
@@ -14,12 +16,11 @@ require 'rest-client'
 require 'json'
 require 'socket'
 
-include Sensu::Plugin::Utils
-
 class CheckSilenced < Sensu::Plugin::Metric::CLI::Generic
+  include Sensu::Plugin::Utils
   default_host = begin
                    settings['api']['host']
-                 rescue
+                 rescue StandardError
                    'localhost'
                  end
 
@@ -81,7 +82,7 @@ class CheckSilenced < Sensu::Plugin::Metric::CLI::Generic
     all_stashes.each do |stash|
       filtered_stashes << stash if stash['path'] =~ /^#{@config[:filter]}\/.*/
     end
-    return filtered_stashes
+    filtered_stashes
   rescue Errno::ECONNREFUSED
     warning 'Connection refused'
   rescue RestClient::RequestTimeout
@@ -99,9 +100,9 @@ class CheckSilenced < Sensu::Plugin::Metric::CLI::Generic
     stashes = acquire_stashes
     now = Time.now.to_i
     @count = 0
-    if stashes.count > 0
+    if stashes.count.positive?
       stashes.each do |stash|
-        if stash['content'].key?('expires') && now - stash['content']['expires'] > 0
+        if stash['content'].key?('expires') && now - stash['content']['expires'] .positive?
           delete_stash(stash) unless config[:noop]
           @count += 1
         end

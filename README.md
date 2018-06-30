@@ -4,7 +4,7 @@
 [![Gem Version](https://badge.fury.io/rb/sensu-plugins-sensu.svg)](http://badge.fury.io/rb/sensu-plugins-sensu)
 [![Code Climate](https://codeclimate.com/github/sensu-plugins/sensu-plugins-sensu/badges/gpa.svg)](https://codeclimate.com/github/sensu-plugins/sensu-plugins-sensu)
 [![Test Coverage](https://codeclimate.com/github/sensu-plugins/sensu-plugins-sensu/badges/coverage.svg)](https://codeclimate.com/github/sensu-plugins/sensu-plugins-sensu)
-[![Dependency Status](https://gemnasium.com/sensu-plugins/sensu-plugins-sensu.svg)](https://gemnasium.com/sensu-plugins/sensu-plugins-sensu)
+[![Community Slack](https://slack.sensu.io/badge.svg)](https://slack.sensu.io/badge)
 
 ## Functionality
 

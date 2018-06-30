@@ -1,3 +1,6 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: false
+
 #
 # handler-purge-stale-results.rb
 #
@@ -36,7 +39,7 @@ class HandlerPurgeStaleResults < Sensu::Handler
   def results
     res = []
     req = api_request(:GET, '/results')
-    res = JSON.parse(req.body) if req && req.code == '200'
+    res = JSON.parse(req.body) if req&.code == '200'
     res
   end
 
@@ -54,33 +57,33 @@ class HandlerPurgeStaleResults < Sensu::Handler
           else
             deleted << "#{result['client']} - #{result['check']['name']}"
           end
-        rescue
+        rescue StandardError
           failed << "#{result['client']} - #{result['check']['name']} (Caught exception: #{$ERROR_INFO})"
         end
       end
     end
 
     if !deleted.empty? || !failed.empty?
-      msg = <<EOF
-From: Sensu <#{config[:mail_sender]}>
-To: <#{config[:mail_recipient]}>
-Subject: Purge stale check results
+      msg = <<~MESSAGE
+        From: Sensu <#{config[:mail_sender]}>
+        To: <#{config[:mail_recipient]}>
+        Subject: Purge stale check results
 
-This is a notification concerning the #{self.class.name} sensu handler running at #{Socket.gethostname}
+        This is a notification concerning the #{self.class.name} sensu handler running at #{Socket.gethostname}
 
-* Summary
+        * Summary
 
-    Deleted: #{deleted.size}
-    Failed to delete: #{failed.size}
+            Deleted: #{deleted.size}
+            Failed to delete: #{failed.size}
 
-* Failed to delete check results:
+        * Failed to delete check results:
 
-#{failed.map { |m| "    #{m}" }.join("\n")}
+        #{failed.map { |m| "    #{m}" }.join("\n")}
 
-* Deleted check results:
+        * Deleted check results:
 
-#{deleted.map { |m| "    #{m}" }.join("\n")}
-EOF
+        #{deleted.map { |m| "    #{m}" }.join("\n")}
+      MESSAGE
 
       Net::SMTP.start(config[:mail_server]) do |smtp|
         smtp.send_message(msg, config[:mail_sender], config[:mail_recipient])

@@ -1,4 +1,6 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: false
+
 #
 # check-stale-results.rb
 #
@@ -54,7 +56,7 @@ class CheckStaleResults < Sensu::Plugin::Check::CLI
 
   def humanize(secs)
     [[60, :seconds], [60, :minutes], [24, :hours], [1000, :days]].map do |count, name|
-      if secs > 0
+      if secs.positive?
         secs, n = secs.divmod(count)
         "#{n.to_i} #{name}"
       end
@@ -69,7 +71,11 @@ class CheckStaleResults < Sensu::Plugin::Check::CLI
 
   def api_request(method, path)
     unless settings.key?('api')
-      raise 'api.json settings not found.'
+      unknown <<~HEREDOC
+        sensu does not have an api config stanza set, please configure it in
+        either /etc/sensu/config.json or in any config that is loaded by sensu
+        such as /etc/sensu/conf.d/api.json
+      HEREDOC
     end
     uri = get_uri(path)
     Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https') do |http|
@@ -85,7 +91,7 @@ class CheckStaleResults < Sensu::Plugin::Check::CLI
   def results
     res = []
     req = api_request(:GET, '/results')
-    res = JSON.parse(req.body) if req && req.code == '200'
+    res = JSON.parse(req.body) if req&.code == '200'
     res
   end
 

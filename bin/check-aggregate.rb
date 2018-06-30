@@ -1,4 +1,6 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: false
+
 #
 # Check Aggregate
 # ===
@@ -171,7 +173,7 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
     aggregate[:results].delete_if do |entry|
       begin
         api_request("/stashes/silence/#{entry[:client]}/#{config[:check]}")
-        if entry[:status] == 0
+        if entry[:status].zero?
           aggregate[:ok] = aggregate[:ok] - 1
         elsif entry[:status] == 1
           aggregate[:warning] = aggregate[:warning] - 1
@@ -192,7 +194,7 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
   def collect_output(aggregate)
     output = ''
     aggregate[:results].each do |entry|
-      output << entry[:output] + "\n" unless entry[:status] == 0
+      output << entry[:output] + "\n" unless entry[:status].zero?
     end
     aggregate[:outputs] = [output]
   end
@@ -208,7 +210,7 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
 
   def named_aggregate_results
     results = api_request("/aggregates/#{config[:check]}?max_age=#{config[:age]}")[:results]
-    warning "No aggregates found in last #{config[:age]} seconds" if %w(ok warning critical unknown).all? { |x| results[x.to_sym] == 0 }
+    warning "No aggregates found in last #{config[:age]} seconds" if %w[ok warning critical unknown].all? { |x| results[x.to_sym].zero? }
     results
   end
 
@@ -263,7 +265,7 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
     if config[:debug]
       message += "\n" + aggregate.to_s
     end
-    aggregate[:outputs].each do |output, _count|
+    aggregate[:outputs].each_key do |output|
       matched = regex.match(output.to_s)
       unless matched.nil?
         key = matched[1]

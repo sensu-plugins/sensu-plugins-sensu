@@ -1,4 +1,6 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: false
+
 #
 # Aggregate Metrics
 #
@@ -115,27 +117,12 @@ class AggregateMetrics < Sensu::Plugin::Metric::CLI::Generic
     acquire_checks.each do |check|
       aggregate = get_aggregate(check['name'])
       puts "#{check['name']} aggregates: #{aggregate}" if config[:debug]
-      aggregate.each do |result, count|
-        # in 0.24 they changed the api results for aggregates this helps
-        # maintain backwards compatibility with 0.23 and newer versions.
-        if count.is_a?(Hash)
-          count.each do |x, y|
-            output metric_name: x,
-                   value: y,
-                   graphite_metric_path: "#{config[:scheme]}.#{check['name']}.#{x}",
-                   statsd_metric_name: "#{config[:scheme]}.#{check['name']}.#{x}",
-                   influxdb_measurement: config[:measurement],
-                   tags: {
-                     check: check['name'],
-                     host: Socket.gethostname
-                   },
-                   timestamp: timestamp
-          end
-        else
-          output metric_name: result,
-                 value: count,
-                 graphite_metric_path: "#{config[:scheme]}.#{check['name']}.#{result}",
-                 statsd_metric_name: "#{config[:scheme]}.#{check['name']}.#{result}",
+      aggregate.each_value do |count|
+        count.each do |x, y|
+          output metric_name: x,
+                 value: y,
+                 graphite_metric_path: "#{config[:scheme]}.#{check['name']}.#{x}",
+                 statsd_metric_name: "#{config[:scheme]}.#{check['name']}.#{x}",
                  influxdb_measurement: config[:measurement],
                  tags: {
                    check: check['name'],
