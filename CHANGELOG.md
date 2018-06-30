@@ -6,6 +6,26 @@ Which is based on [Keep A Changelog](http://keepachangelog.com/)
 
 ## [Unreleased]
 
+#### Security
+- updated `yard` dependency to `~> 0.9.11` per: https://nvd.nist.gov/vuln/detail/CVE-2017-17042 which closes attacks against a yard server loading arbitrary files (@majormoses)
+- updated rubocop dependency to `~> 0.51.0` per: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-8418. (@majormoses)
+
+### Breaking Changes
+- removing ruby support for `< 2.3` versions as they are EOL (@majormoses)
+- metrics-aggregate.rb: removed support for `sensu` api versions lower than `0.24` you can read about it [here](https://github.com/sensu/sensu/issues/1218) (@majormoses)
+
+### Removed
+- gemnasium badge as github offers native feature and they were bought by gitlab and no longer available as a standalone product (@majormoses)
+
+### Added
+- slack badge (@majormoses)
+
+### Changed
+- check-stale-results.rb: improve error message when there is no api key in sensu settings (@majormoses)
+- bumped dependency of `sensu-plugin` to `~> 2.5`  (@majormoses)
+- appeasing the cops (@majormoses)
+
+## [3.0.0] - 2018-05-17
 ### Breaking Change
 - bumped dependency of `sensu-plugin` to 2.x you can read about it [here](https://github.com/sensu-plugins/sensu-plugin/blob/master/CHANGELOG.md#v200---2017-03-29)
 

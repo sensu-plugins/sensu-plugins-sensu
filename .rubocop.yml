@@ -37,3 +37,6 @@ Style/GuardClause:
 
 Style/Next:
   Enabled: false
+
+AllCops:
+  TargetRubyVersion: 2.3

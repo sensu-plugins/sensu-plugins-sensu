@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: false
 
 require 'rubygems'
 require 'sensu-handler'
@@ -21,13 +22,13 @@ class Deregister < Sensu::Handler
   end
 
   def delete_sensu_client!
-    if config[:invalidate] && config[:invalidate_expire]
-      response = api_request(:DELETE, '/clients/' + @event['client']['name'] + "?invalidate=#{config[:invalidate]}&#{config[:invalidate_expire]}").code
-    elsif config[:invalidate]
-      response = api_request(:DELETE, '/clients/' + @event['client']['name'] + "?invalidate=#{config[:invalidate]}").code
-    else
-      response = api_request(:DELETE, '/clients/' + @event['client']['name']).code
-    end
+    response = if config[:invalidate] && config[:invalidate_expire]
+                 api_request(:DELETE, '/clients/' + @event['client']['name'] + "?invalidate=#{config[:invalidate]}&#{config[:invalidate_expire]}").code
+               elsif config[:invalidate]
+                 api_request(:DELETE, '/clients/' + @event['client']['name'] + "?invalidate=#{config[:invalidate]}").code
+               else
+                 api_request(:DELETE, '/clients/' + @event['client']['name']).code
+               end
     deletion_status(response)
   end
 

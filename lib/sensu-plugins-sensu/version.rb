@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module SensuPluginsSensu
   # This defines the version of the gem
   module Version
