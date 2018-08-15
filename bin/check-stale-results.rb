@@ -69,6 +69,24 @@ class CheckStaleResults < Sensu::Plugin::Check::CLI
     URI("#{protocol}://#{host}:#{settings['api']['port']}#{path}")
   end
 
+  def paginated_get(path, options = {})
+    limit = options.fetch('limit', 500)
+    offset = 0
+    results = []
+    loop do
+      query_path = "#{path}?limit=#{limit}&offset=#{offset}"
+      response = api_request(:GET, query_path)
+      unless response.is_a?(Net::HTTPOK)
+        unknown("Non-OK response from API query: #{get_uri(query_path)}")
+      end
+      data = JSON.parse(response.body)
+      break if data.empty?
+      results << data
+      offset = offset + limit
+    end
+    results.flatten
+  end
+
   def api_request(method, path)
     unless settings.key?('api')
       unknown <<~HEREDOC
@@ -89,9 +107,7 @@ class CheckStaleResults < Sensu::Plugin::Check::CLI
   end
 
   def results
-    res = []
-    req = api_request(:GET, '/results')
-    res = JSON.parse(req.body) if req&.code == '200'
+    res = paginated_get('/results')
     res
   end
 
