@@ -82,7 +82,7 @@ class CheckStaleResults < Sensu::Plugin::Check::CLI
       data = JSON.parse(response.body)
       break if data.empty?
       results << data
-      offset = offset + limit
+      offset += limit
     end
     results.flatten
   end
