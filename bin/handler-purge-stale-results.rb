@@ -36,10 +36,27 @@ class HandlerPurgeStaleResults < Sensu::Handler
          long: '--mail-recipient <ADDRESS>',
          required: true
 
+
+  def paginated_get(path, options = {})
+    limit = options.fetch('limit', 500)
+    offset = 0
+    results = []
+    loop do
+      query_path = "#{path}?limit=#{limit}&offset=#{offset}"
+      response = api_request(:GET, query_path)
+      unless response.is_a?(Net::HTTPOK)
+        unknown("Non-OK response from API query: #{get_uri(query_path)}")
+      end
+      data = JSON.parse(response.body)
+      break if data.empty?
+      results << data
+      offset += limit
+    end
+    results.flatten
+  end
+
   def results
-    res = []
-    req = api_request(:GET, '/results')
-    res = JSON.parse(req.body) if req&.code == '200'
+    res = paginated_get('/results')
     res
   end
 
