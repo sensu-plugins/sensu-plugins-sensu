@@ -5,6 +5,8 @@ This CHANGELOG follows the format listed at [Our CHANGELOG Guidelines ](https://
 Which is based on [Keep A Changelog](http://keepachangelog.com/)
 
 ## [Unreleased]
+
+## [4.1.0] - 2018-08-28
 ### Changed
 - bumped dependency of `sensu-plugin` to `~> 2.6` to provide paginated HTTP get (@cwjohnston)
 - check-stale-results.rb: use paginated HTTP get (@cwjohnston)
@@ -147,7 +149,8 @@ Which is based on [Keep A Changelog](http://keepachangelog.com/)
 ### Added
 - initial release
 
-[Unreleased]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/4.0.0...HEAD
+[Unreleased]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/4.1.0...HEAD
+[4.1.0]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/4.0.0...4.1.0
 [4.0.0]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/3.0.0...4.0.0
 [3.0.0]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/2.5.0...3.0.0
 [2.5.0]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/2.4.1...2.5.0
