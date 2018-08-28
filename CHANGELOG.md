@@ -5,6 +5,10 @@ This CHANGELOG follows the format listed at [Our CHANGELOG Guidelines ](https://
 Which is based on [Keep A Changelog](http://keepachangelog.com/)
 
 ## [Unreleased]
+### Changed
+- bumped dependency of `sensu-plugin` to `~> 2.6` to provide paginated HTTP get (@cwjohnston)
+- check-stale-results.rb: use paginated HTTP get (@cwjohnston)
+- handler-purge-stale-results.rb: use paginated HTTP get (@cwjohnston)
 
 ## [4.0.0] - 2018-07-18
 ### Security
