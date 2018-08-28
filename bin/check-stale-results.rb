@@ -89,7 +89,6 @@ class CheckStaleResults < Sensu::Plugin::Check::CLI
   end
 
   def results
-    res = []
     res = paginated_get('/results')
     res
   end

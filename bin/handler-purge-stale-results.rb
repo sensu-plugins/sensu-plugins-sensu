@@ -37,7 +37,6 @@ class HandlerPurgeStaleResults < Sensu::Handler
          required: true
 
   def results
-    res = []
     res = paginated_get('/results')
     res
   end
