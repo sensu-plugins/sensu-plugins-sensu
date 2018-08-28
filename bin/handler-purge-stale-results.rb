@@ -37,9 +37,7 @@ class HandlerPurgeStaleResults < Sensu::Handler
          required: true
 
   def results
-    res = []
-    req = api_request(:GET, '/results')
-    res = JSON.parse(req.body) if req&.code == '200'
+    res = paginated_get('/results')
     res
   end
 
