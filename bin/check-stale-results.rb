@@ -46,9 +46,9 @@ class CheckStaleResults < Sensu::Plugin::Check::CLI
          default: nil
 
   option :timeout,
-         description: 'Max timeout for http request call',
-         short: '-t <COUNT>',
-         long: '--timeout <COUNT>',
+         description: 'read timeout for http request',
+         short: '-t <TIME>',
+         long: '--timeout <TIME>',
          proc: proc(&:to_i),
          default: 60
 
