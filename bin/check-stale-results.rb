@@ -45,6 +45,13 @@ class CheckStaleResults < Sensu::Plugin::Check::CLI
          proc: proc(&:to_i),
          default: nil
 
+  option :timeout,
+         description: 'Max timeout for http request call',
+         short: '-t <COUNT>',
+         long: '--timeout <COUNT>',
+         proc: proc(&:to_i),
+         default: 60
+
   def initialize
     super
 
@@ -78,7 +85,7 @@ class CheckStaleResults < Sensu::Plugin::Check::CLI
       HEREDOC
     end
     uri = get_uri(path)
-    Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https') do |http|
+    Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https', read_timeout: config[:timeout]) do |http|
       request = net_http_req_class(method).new(path)
       if settings['api']['user'] && settings['api']['password']
         request.basic_auth(settings['api']['user'], settings['api']['password'])
