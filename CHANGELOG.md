@@ -6,6 +6,9 @@ Which is based on [Keep A Changelog](http://keepachangelog.com/)
 
 ## [Unreleased]
 
+### Changed
+- check-stale-results.rb: added an option to pass read_timeout for http request.
+
 ## [4.1.0] - 2018-08-28
 ### Changed
 - bumped dependency of `sensu-plugin` to `~> 2.6` to provide paginated HTTP get (@cwjohnston)
