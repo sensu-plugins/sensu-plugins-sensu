@@ -8,7 +8,7 @@ Which is based on [Keep A Changelog](http://keepachangelog.com/)
 
 ## [4.2.0] - 2018-09-19
 ### Added
-- check-stale-results.rb: added an option to pass read_timeout for http request.
+- check-stale-results.rb: added an option to pass read_timeout for http request. (@bkim8815)
 
 ## [4.1.0] - 2018-08-28
 ### Changed
