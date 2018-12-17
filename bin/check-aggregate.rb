@@ -170,38 +170,10 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
     aggregate[:outputs] = [output]
   end
 
-  def acquire_aggregate
-    major, minor = api_request('/info')[:sensu][:version].split('.')
-    if major >= '1' || minor >= '24'
-      named_aggregate_results
-    else
-      aggregate_results
-    end
-  end
-
   def named_aggregate_results
     results = api_request("/aggregates/#{config[:check]}?max_age=#{config[:age]}")[:results]
     warning "No aggregates found in last #{config[:age]} seconds" if %w[ok warning critical unknown].all? { |x| results[x.to_sym].zero? }
     results
-  end
-
-  def aggregate_results
-    uri = "/aggregates/#{config[:check]}"
-    issued = api_request(uri + "?age=#{config[:age]}" + (config[:limit] ? "&limit=#{config[:limit]}" : ''))
-    unless issued.empty?
-      issued_sorted = issued.sort
-      time = issued_sorted.pop
-      unless time.nil?
-        uri += "/#{time}?"
-        uri += '&summarize=output' if config[:summarize]
-        uri += '&results=true' if config[:collect_output]
-        api_request(uri)
-      else
-        warning "No aggregates older than #{config[:age]} seconds"
-      end
-    else
-      warning "No aggregates for #{config[:check]}"
-    end
   end
 
   def compare_thresholds(aggregate)
@@ -300,7 +272,7 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
     pattern = config[:summarize] && config[:pattern]
     critical 'Misconfiguration: critical || warning || (summarize && pattern) must be set' unless threshold || pattern || threshold_count
 
-    aggregate = acquire_aggregate
+    aggregate = named_aggregate_results
     aggregate = collect_output(aggregate) if config[:collect_output]
     compare_thresholds(aggregate) if threshold
     compare_pattern(aggregate) if pattern
