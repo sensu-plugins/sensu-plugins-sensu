@@ -103,13 +103,13 @@ class AggregateMetrics < Sensu::Plugin::Metric::CLI::Generic
     warning 'Sensu API returned invalid JSON'
   end
 
-  def get_aggregates
+  def fetch_aggregates
     aggregates = api_request('/aggregates')
     puts "Aggregates: #{aggregates.inspect}" if config[:debug]
     aggregates
   end
 
-  def get_aggregate(name)
+  def fetch_aggregate(name)
     aggregate = api_request("/aggregates/#{name}?max_age=#{config[:age]}")
     puts "Aggregate: #{aggregate.inspect}" if config[:debug]
     aggregate
@@ -130,9 +130,9 @@ class AggregateMetrics < Sensu::Plugin::Metric::CLI::Generic
 
   def run
     timestamp = Time.now.to_i
-    get_aggregates.each do |info|
+    fetch_aggregates.each do |info|
       aggregate_name = info[:name]
-      aggregate = get_aggregate(aggregate_name)
+      aggregate = fetch_aggregate(aggregate_name)
       counter(aggregate_name, 'clients', aggregate[:clients], timestamp)
       counter(aggregate_name, 'checks', aggregate[:checks], timestamp)
       aggregate[:results].each do |metric_name, metric_value|
