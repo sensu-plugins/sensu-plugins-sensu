@@ -28,108 +28,115 @@
 # Released under the same terms as Sensu (the MIT license); see
 # LICENSE for details.
 
-require 'sensu-plugin/metric/cli'
-require 'json'
-require 'net/http'
-require 'net/https'
+require "sensu-plugin/metric/cli"
+require "rest-client"
+require "json"
 
 class AggregateMetrics < Sensu::Plugin::Metric::CLI::Generic
   option :api,
-         short: '-a URL',
-         long: '--api URL',
-         description: 'Sensu API URL',
-         default: 'http://localhost:4567'
+         short: "-a URL",
+         long: "--api URL",
+         description: "Sensu API URL",
+         default: "http://127.0.0.1:4567"
 
   option :user,
-         short: '-u USER',
-         long: '--user USER',
-         description: 'Sensu API USER'
+         short: "-u USER",
+         long: "--user USER",
+         description: "Sensu API USER"
 
   option :password,
-         short: '-p PASSOWRD',
-         long: '--password PASSWORD',
-         description: 'Sensu API PASSWORD'
+         short: "-p PASSOWRD",
+         long: "--password PASSWORD",
+         description: "Sensu API PASSWORD"
+
+  option :insecure,
+         short: '-k',
+         boolean: true,
+         description: 'Enabling insecure connections',
+         default: false
 
   option :timeout,
-         short: '-t SECONDS',
-         long: '--timeout SECONDS',
-         description: 'Sensu API connection timeout in SECONDS',
+         short: "-t SECONDS",
+         long: "--timeout SECONDS",
+         description: "Sensu API connection timeout in SECONDS",
          proc: proc(&:to_i),
          default: 30
 
   option :age,
-         short: '-A SECONDS',
-         long: '--age SECONDS',
-         description: 'Minimum aggregate age in SECONDS, time since check request issued',
+         short: "-A SECONDS",
+         long: "--age SECONDS",
+         description: "Minimum aggregate age in SECONDS, time since check request issued",
          default: 30,
          proc: proc(&:to_i)
 
   option :scheme,
-         description: 'Metric naming scheme for graphite format',
-         long: '--scheme SCHEME',
+         description: "Metric naming scheme for graphite format",
+         long: "--scheme SCHEME",
          default: "#{Socket.gethostname}.sensu.aggregates"
 
   option :measurement,
-         description: 'Measurement for influxdb format',
-         long: '--measurement MEASUREMENT',
-         default: 'sensu.aggregates'
+         description: "Measurement for influxdb format",
+         long: "--measurement MEASUREMENT",
+         default: "sensu.aggregates"
 
   option :debug,
-         long: '--debug',
-         description: 'Verbose output'
+         long: "--debug",
+         description: "Verbose output"
 
   def api_request(resource)
-    uri = URI.parse(config[:api])
-    http = Net::HTTP.new(uri.host, uri.port)
-    if uri.scheme == 'https'
-      http.use_ssl = true
-    end
-    req = Net::HTTP::Get.new(resource)
-    r = http.request(req)
-    ::JSON.parse(r.body)
+    verify_mode = OpenSSL::SSL::VERIFY_PEER
+    verify_mode = OpenSSL::SSL::VERIFY_NONE if config[:insecure]
+    request = RestClient::Resource.new(config[:api] + resource, timeout: config[:timeout],
+                                                                user: config[:user],
+                                                                password: config[:password],
+                                                                verify_ssl: verify_mode)
+    ::JSON.parse(request.get, symbolize_names: true)
   rescue Errno::ECONNREFUSED
     warning 'Connection refused'
-  rescue Timeout::Error
+  rescue RestClient::RequestFailed
+    warning 'Request failed'
+  rescue RestClient::RequestTimeout
     warning 'Connection timed out'
+  rescue RestClient::Unauthorized
+    warning 'Missing or incorrect Sensu API credentials'
   rescue ::JSON::ParserError
     warning 'Sensu API returned invalid JSON'
   end
 
-  def acquire_checks
-    uri = '/aggregates'
-    checks = api_request(uri)
-    puts "Checks: #{checks.inspect}" if config[:debug]
-    checks
+  def get_aggregates
+    aggregates = api_request("/aggregates")
+    puts "Aggregates: #{aggregates.inspect}" if config[:debug]
+    aggregates
   end
 
-  def get_aggregate(check)
-    uri = "/aggregates/#{check}"
-    issued = api_request(uri + "?max_age=#{config[:age]}")
-    if issued.empty?
-      warning "No aggregates for #{check}"
-    else
-      issued
-    end
+  def get_aggregate(name)
+    aggregate = api_request("/aggregates/#{name}?max_age=#{config[:age]}")
+    puts "Aggregate: #{aggregate.inspect}" if config[:debug]
+    aggregate
+  end
+
+  def counter(aggregate_name, metric_name, metric_value, timestamp)
+    output metric_name: metric_name,
+           value: metric_value,
+           graphite_metric_path: "#{config[:scheme]}.#{aggregate_name}.#{metric_name}",
+           statsd_metric_name: "#{config[:scheme]}.#{aggregate_name}.#{metric_name}",
+           influxdb_measurement: config[:measurement],
+           tags: {
+             aggregate: aggregate_name,
+             host: Socket.gethostname
+           },
+           timestamp: timestamp
   end
 
   def run
     timestamp = Time.now.to_i
-    acquire_checks.each do |check|
-      aggregate = get_aggregate(check['name'])
-      puts "#{check['name']} aggregates: #{aggregate}" if config[:debug]
-      aggregate.each_value do |count|
-        count.each do |x, y|
-          output metric_name: x,
-                 value: y,
-                 graphite_metric_path: "#{config[:scheme]}.#{check['name']}.#{x}",
-                 statsd_metric_name: "#{config[:scheme]}.#{check['name']}.#{x}",
-                 influxdb_measurement: config[:measurement],
-                 tags: {
-                   check: check['name'],
-                   host: Socket.gethostname
-                 },
-                 timestamp: timestamp
-        end
+    get_aggregates.each do |info|
+      aggregate_name = info[:name]
+      aggregate = get_aggregate(aggregate_name)
+      counter(aggregate_name, "clients", aggregate[:clients], timestamp)
+      counter(aggregate_name, "checks", aggregate[:checks], timestamp)
+      aggregate[:results].each do |metric_name, metric_value|
+        counter(aggregate_name, metric_name, metric_value, timestamp)
       end
     end
     ok
