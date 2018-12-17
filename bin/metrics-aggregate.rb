@@ -28,26 +28,26 @@
 # Released under the same terms as Sensu (the MIT license); see
 # LICENSE for details.
 
-require "sensu-plugin/metric/cli"
-require "rest-client"
-require "json"
+require 'sensu-plugin/metric/cli'
+require 'rest-client'
+require 'json'
 
 class AggregateMetrics < Sensu::Plugin::Metric::CLI::Generic
   option :api,
-         short: "-a URL",
-         long: "--api URL",
-         description: "Sensu API URL",
-         default: "http://127.0.0.1:4567"
+         short: '-a URL',
+         long: '--api URL',
+         description: 'Sensu API URL',
+         default: 'http://127.0.0.1:4567'
 
   option :user,
-         short: "-u USER",
-         long: "--user USER",
-         description: "Sensu API USER"
+         short: '-u USER',
+         long: '--user USER',
+         description: 'Sensu API USER'
 
   option :password,
-         short: "-p PASSOWRD",
-         long: "--password PASSWORD",
-         description: "Sensu API PASSWORD"
+         short: '-p PASSOWRD',
+         long: '--password PASSWORD',
+         description: 'Sensu API PASSWORD'
 
   option :insecure,
          short: '-k',
@@ -56,32 +56,32 @@ class AggregateMetrics < Sensu::Plugin::Metric::CLI::Generic
          default: false
 
   option :timeout,
-         short: "-t SECONDS",
-         long: "--timeout SECONDS",
-         description: "Sensu API connection timeout in SECONDS",
+         short: '-t SECONDS',
+         long: '--timeout SECONDS',
+         description: 'Sensu API connection timeout in SECONDS',
          proc: proc(&:to_i),
          default: 30
 
   option :age,
-         short: "-A SECONDS",
-         long: "--age SECONDS",
-         description: "Minimum aggregate age in SECONDS, time since check request issued",
+         short: '-A SECONDS',
+         long: '--age SECONDS',
+         description: 'Minimum aggregate age in SECONDS, time since check request issued',
          default: 30,
          proc: proc(&:to_i)
 
   option :scheme,
-         description: "Metric naming scheme for graphite format",
-         long: "--scheme SCHEME",
+         description: 'Metric naming scheme for graphite format',
+         long: '--scheme SCHEME',
          default: "#{Socket.gethostname}.sensu.aggregates"
 
   option :measurement,
-         description: "Measurement for influxdb format",
-         long: "--measurement MEASUREMENT",
-         default: "sensu.aggregates"
+         description: 'Measurement for influxdb format',
+         long: '--measurement MEASUREMENT',
+         default: 'sensu.aggregates'
 
   option :debug,
-         long: "--debug",
-         description: "Verbose output"
+         long: '--debug',
+         description: 'Verbose output'
 
   def api_request(resource)
     verify_mode = OpenSSL::SSL::VERIFY_PEER
@@ -104,7 +104,7 @@ class AggregateMetrics < Sensu::Plugin::Metric::CLI::Generic
   end
 
   def get_aggregates
-    aggregates = api_request("/aggregates")
+    aggregates = api_request('/aggregates')
     puts "Aggregates: #{aggregates.inspect}" if config[:debug]
     aggregates
   end
@@ -133,8 +133,8 @@ class AggregateMetrics < Sensu::Plugin::Metric::CLI::Generic
     get_aggregates.each do |info|
       aggregate_name = info[:name]
       aggregate = get_aggregate(aggregate_name)
-      counter(aggregate_name, "clients", aggregate[:clients], timestamp)
-      counter(aggregate_name, "checks", aggregate[:checks], timestamp)
+      counter(aggregate_name, 'clients', aggregate[:clients], timestamp)
+      counter(aggregate_name, 'checks', aggregate[:checks], timestamp)
       aggregate[:results].each do |metric_name, metric_value|
         counter(aggregate_name, metric_name, metric_value, timestamp)
       end
