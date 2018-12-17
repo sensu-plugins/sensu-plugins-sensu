@@ -114,13 +114,6 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
          long: '--pattern PATTERN',
          description: 'A PATTERN to detect outliers'
 
-  option :honor_stash,
-         short: '-i',
-         long: '--honor-stash',
-         description: 'Checks that are stashed will be ignored from the aggregate',
-         boolean: true,
-         default: false
-
   option :message,
          short: '-M MESSAGE',
          long: '--message MESSAGE',
@@ -169,28 +162,6 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
     warning 'Sensu API returned invalid JSON'
   end
 
-  def honor_stash(aggregate)
-    aggregate[:results].delete_if do |entry|
-      begin
-        api_request("/stashes/silence/#{entry[:client]}/#{config[:check]}")
-        if entry[:status].zero?
-          aggregate[:ok] = aggregate[:ok] - 1
-        elsif entry[:status] == 1
-          aggregate[:warning] = aggregate[:warning] - 1
-        elsif entry[:status] == 2
-          aggregate[:critical] = aggregate[:critical] - 1
-        else
-          aggregate[:unknown] = aggregate[:unknown] - 1
-        end
-        aggregate[:total] = aggregate[:total] - 1
-        true
-      rescue RestClient::ResourceNotFound
-        false
-      end
-    end
-    aggregate
-  end
-
   def collect_output(aggregate)
     output = ''
     aggregate[:results].each do |entry|
@@ -223,7 +194,7 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
       unless time.nil?
         uri += "/#{time}?"
         uri += '&summarize=output' if config[:summarize]
-        uri += '&results=true' if config[:honor_stash] || config[:collect_output]
+        uri += '&results=true' if config[:collect_output]
         api_request(uri)
       else
         warning "No aggregates older than #{config[:age]} seconds"
@@ -330,7 +301,6 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
     critical 'Misconfiguration: critical || warning || (summarize && pattern) must be set' unless threshold || pattern || threshold_count
 
     aggregate = acquire_aggregate
-    aggregate = honor_stash(aggregate) if config[:honor_stash]
     aggregate = collect_output(aggregate) if config[:collect_output]
     compare_thresholds(aggregate) if threshold
     compare_pattern(aggregate) if pattern
