@@ -29,16 +29,15 @@
 # LICENSE for details.
 
 require 'sensu-plugin/metric/cli'
+require 'rest-client'
 require 'json'
-require 'net/http'
-require 'net/https'
 
 class AggregateMetrics < Sensu::Plugin::Metric::CLI::Generic
   option :api,
          short: '-a URL',
          long: '--api URL',
          description: 'Sensu API URL',
-         default: 'http://localhost:4567'
+         default: 'http://127.0.0.1:4567'
 
   option :user,
          short: '-u USER',
@@ -49,6 +48,12 @@ class AggregateMetrics < Sensu::Plugin::Metric::CLI::Generic
          short: '-p PASSOWRD',
          long: '--password PASSWORD',
          description: 'Sensu API PASSWORD'
+
+  option :insecure,
+         short: '-k',
+         boolean: true,
+         description: 'Enabling insecure connections',
+         default: false
 
   option :timeout,
          short: '-t SECONDS',
@@ -79,57 +84,59 @@ class AggregateMetrics < Sensu::Plugin::Metric::CLI::Generic
          description: 'Verbose output'
 
   def api_request(resource)
-    uri = URI.parse(config[:api])
-    http = Net::HTTP.new(uri.host, uri.port)
-    if uri.scheme == 'https'
-      http.use_ssl = true
-    end
-    req = Net::HTTP::Get.new(resource)
-    r = http.request(req)
-    ::JSON.parse(r.body)
+    verify_mode = OpenSSL::SSL::VERIFY_PEER
+    verify_mode = OpenSSL::SSL::VERIFY_NONE if config[:insecure]
+    request = RestClient::Resource.new(config[:api] + resource, timeout: config[:timeout],
+                                                                user: config[:user],
+                                                                password: config[:password],
+                                                                verify_ssl: verify_mode)
+    ::JSON.parse(request.get, symbolize_names: true)
   rescue Errno::ECONNREFUSED
     warning 'Connection refused'
-  rescue Timeout::Error
+  rescue RestClient::RequestFailed
+    warning 'Request failed'
+  rescue RestClient::RequestTimeout
     warning 'Connection timed out'
+  rescue RestClient::Unauthorized
+    warning 'Missing or incorrect Sensu API credentials'
   rescue ::JSON::ParserError
     warning 'Sensu API returned invalid JSON'
   end
 
-  def acquire_checks
-    uri = '/aggregates'
-    checks = api_request(uri)
-    puts "Checks: #{checks.inspect}" if config[:debug]
-    checks
+  def fetch_aggregates
+    aggregates = api_request('/aggregates')
+    puts "Aggregates: #{aggregates.inspect}" if config[:debug]
+    aggregates
   end
 
-  def get_aggregate(check)
-    uri = "/aggregates/#{check}"
-    issued = api_request(uri + "?max_age=#{config[:age]}")
-    if issued.empty?
-      warning "No aggregates for #{check}"
-    else
-      issued
-    end
+  def fetch_aggregate(name)
+    aggregate = api_request("/aggregates/#{name}?max_age=#{config[:age]}")
+    puts "Aggregate: #{aggregate.inspect}" if config[:debug]
+    aggregate
+  end
+
+  def counter(aggregate_name, metric_name, metric_value, timestamp)
+    output metric_name: metric_name,
+           value: metric_value,
+           graphite_metric_path: "#{config[:scheme]}.#{aggregate_name}.#{metric_name}",
+           statsd_metric_name: "#{config[:scheme]}.#{aggregate_name}.#{metric_name}",
+           influxdb_measurement: config[:measurement],
+           tags: {
+             aggregate: aggregate_name,
+             host: Socket.gethostname
+           },
+           timestamp: timestamp
   end
 
   def run
     timestamp = Time.now.to_i
-    acquire_checks.each do |check|
-      aggregate = get_aggregate(check['name'])
-      puts "#{check['name']} aggregates: #{aggregate}" if config[:debug]
-      aggregate.each_value do |count|
-        count.each do |x, y|
-          output metric_name: x,
-                 value: y,
-                 graphite_metric_path: "#{config[:scheme]}.#{check['name']}.#{x}",
-                 statsd_metric_name: "#{config[:scheme]}.#{check['name']}.#{x}",
-                 influxdb_measurement: config[:measurement],
-                 tags: {
-                   check: check['name'],
-                   host: Socket.gethostname
-                 },
-                 timestamp: timestamp
-        end
+    fetch_aggregates.each do |info|
+      aggregate_name = info[:name]
+      aggregate = fetch_aggregate(aggregate_name)
+      counter(aggregate_name, 'clients', aggregate[:clients], timestamp)
+      counter(aggregate_name, 'checks', aggregate[:checks], timestamp)
+      aggregate[:results].each do |metric_name, metric_value|
+        counter(aggregate_name, metric_name, metric_value, timestamp)
       end
     end
     ok

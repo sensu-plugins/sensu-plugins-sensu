@@ -73,13 +73,6 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
          description: 'Limit of aggregates you want the API to return',
          proc: proc(&:to_i)
 
-  option :summarize,
-         short: '-s',
-         long: '--summarize',
-         boolean: true,
-         description: 'Summarize check result output',
-         default: false
-
   option :collect_output,
          short: '-o',
          long: '--output',
@@ -113,13 +106,6 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
          short: '-P PATTERN',
          long: '--pattern PATTERN',
          description: 'A PATTERN to detect outliers'
-
-  option :honor_stash,
-         short: '-i',
-         long: '--honor-stash',
-         description: 'Checks that are stashed will be ignored from the aggregate',
-         boolean: true,
-         default: false
 
   option :message,
          short: '-M MESSAGE',
@@ -169,74 +155,33 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
     warning 'Sensu API returned invalid JSON'
   end
 
-  def honor_stash(aggregate)
-    aggregate[:results].delete_if do |entry|
-      begin
-        api_request("/stashes/silence/#{entry[:client]}/#{config[:check]}")
-        if entry[:status].zero?
-          aggregate[:ok] = aggregate[:ok] - 1
-        elsif entry[:status] == 1
-          aggregate[:warning] = aggregate[:warning] - 1
-        elsif entry[:status] == 2
-          aggregate[:critical] = aggregate[:critical] - 1
-        else
-          aggregate[:unknown] = aggregate[:unknown] - 1
+  def collect_output(aggregate)
+    outputs = []
+    %w[warning critical unknown].each do |severity|
+      results = api_request("/aggregates/#{config[:check]}/results/#{severity}?max_age=#{config[:age]}")
+      results.each do |result|
+        result[:summary].each do |group|
+          outputs << group[:output]
         end
-        aggregate[:total] = aggregate[:total] - 1
-        true
-      rescue RestClient::ResourceNotFound
-        false
       end
     end
+    aggregate[:outputs] = outputs
     aggregate
   end
 
-  def collect_output(aggregate)
-    output = ''
-    aggregate[:results].each do |entry|
-      output << entry[:output] + "\n" unless entry[:status].zero?
-    end
-    aggregate[:outputs] = [output]
-  end
-
-  def acquire_aggregate
-    major, minor = api_request('/info')[:sensu][:version].split('.')
-    if major >= '1' || minor >= '24'
-      named_aggregate_results
-    else
-      aggregate_results
-    end
-  end
-
   def named_aggregate_results
-    results = api_request("/aggregates/#{config[:check]}?max_age=#{config[:age]}")[:results]
-    warning "No aggregates found in last #{config[:age]} seconds" if %w[ok warning critical unknown].all? { |x| results[x.to_sym].zero? }
-    results
-  end
-
-  def aggregate_results
-    uri = "/aggregates/#{config[:check]}"
-    issued = api_request(uri + "?age=#{config[:age]}" + (config[:limit] ? "&limit=#{config[:limit]}" : ''))
-    unless issued.empty?
-      issued_sorted = issued.sort
-      time = issued_sorted.pop
-      unless time.nil?
-        uri += "/#{time}?"
-        uri += '&summarize=output' if config[:summarize]
-        uri += '&results=true' if config[:honor_stash] || config[:collect_output]
-        api_request(uri)
-      else
-        warning "No aggregates older than #{config[:age]} seconds"
-      end
-    else
-      warning "No aggregates for #{config[:check]}"
+    aggregate = api_request("/aggregates/#{config[:check]}?max_age=#{config[:age]}")
+    results = aggregate[:results]
+    if %w[ok warning critical unknown].all? { |severity| results[severity.to_sym].zero? }
+      warning "No aggregates found in last #{config[:age]} seconds"
     end
+    results
   end
 
   def compare_thresholds(aggregate)
     message = config[:message] || 'Number of non-zero results exceeds threshold'
     message += ' (%d%% %s)'
-    message += "\n" + aggregate[:outputs] if aggregate[:outputs]
+    message += "\n\sOutputs:\n\s\s" + aggregate[:outputs].join("\n\s\s") if aggregate[:outputs]
     if config[:debug]
       message += "\n" + aggregate.to_s
     end
@@ -265,8 +210,8 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
     if config[:debug]
       message += "\n" + aggregate.to_s
     end
-    aggregate[:outputs].each_key do |output|
-      matched = regex.match(output.to_s)
+    aggregate[:outputs].each do |output|
+      matched = regex.match(output)
       unless matched.nil?
         key = matched[1]
         value = matched[2..-1]
@@ -283,7 +228,7 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
   def compare_thresholds_count(aggregate)
     message = config[:message] || 'Number of nodes down exceeds threshold'
     message += " (%s out of #{aggregate[:total]} nodes reporting %s)"
-    message += "\n" + aggregate[:outputs] if aggregate[:outputs]
+    message += "\n\sOutputs:\n\s\s" + aggregate[:outputs].join("\n\s\s") if aggregate[:outputs]
     if config[:debug]
       message += "\n" + aggregate.to_s
     end
@@ -297,7 +242,6 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
     else
       nodes_reporting_warning = aggregate[:warning].to_i
       nodes_reporting_critical = aggregate[:critical].to_i
-
       if config[:critical_count] && nodes_reporting_critical >= config[:critical_count]
         critical format(message, nodes_reporting_critical, 'critical')
       elsif config[:warning_count] && nodes_reporting_warning >= config[:warning_count]
@@ -309,8 +253,7 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
   def compare_stale(aggregate)
     message = config[:message] || 'Number of stale results exceeds threshold'
     message += " (%s out of #{aggregate[:total]} nodes reporting %s)"
-    message += "\n" + aggregate[:outputs] if aggregate[:outputs]
-
+    message += "\n\sOutputs:\n\s\s" + aggregate[:outputs].join("\n\s\s") if aggregate[:outputs]
     if config[:stale_percentage]
       percent_stale = (aggregate[:stale].to_f / aggregate[:total].to_f * 100).to_i
       if percent_stale >= config[:stale_percentage]
@@ -326,11 +269,10 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
   def run
     threshold = config[:critical] || config[:warning]
     threshold_count = config[:critical_count] || config[:warning_count]
-    pattern = config[:summarize] && config[:pattern]
-    critical 'Misconfiguration: critical || warning || (summarize && pattern) must be set' unless threshold || pattern || threshold_count
+    pattern = config[:pattern]
+    critical 'Misconfiguration: critical || warning || pattern must be set' unless threshold || pattern || threshold_count
 
-    aggregate = acquire_aggregate
-    aggregate = honor_stash(aggregate) if config[:honor_stash]
+    aggregate = named_aggregate_results
     aggregate = collect_output(aggregate) if config[:collect_output]
     compare_thresholds(aggregate) if threshold
     compare_pattern(aggregate) if pattern
