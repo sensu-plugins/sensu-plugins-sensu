@@ -5,6 +5,8 @@ This CHANGELOG follows the format listed at [Our CHANGELOG Guidelines ](https://
 Which is based on [Keep A Changelog](http://keepachangelog.com/)
 
 ## [Unreleased]
+### Changed
+- update rest-client to 2.0.2 to fix rest-client issue with 1.8.0 and ruby > 2.4.x
 
 ## [4.2.0] - 2018-09-19
 ### Added
