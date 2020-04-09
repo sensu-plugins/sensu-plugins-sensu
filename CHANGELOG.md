@@ -6,6 +6,10 @@ Which is based on [Keep A Changelog](http://keepachangelog.com/)
 
 ## [Unreleased]
 
+## [5.0.0] - 2020-04-09
+### Breaking Changes
+- bumped `sensu-plugin` dependency from `~> 2.6` to `~> 4.0` please consult the changelog for additional details. The notable breaking change [is](https://github.com/sensu-plugins/sensu-plugin/blob/master/CHANGELOG.md#v145---2017-03-07)
+
 ## [4.3.0] - 2019-07-02
 ### Changed
 - update rest-client to 2.0.2 to fix rest-client issue with 1.8.0 and ruby > 2.4.x
@@ -157,7 +161,8 @@ Which is based on [Keep A Changelog](http://keepachangelog.com/)
 ### Added
 - initial release
 
-[Unreleased]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/4.3.0...HEAD
+[Unreleased]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/5.0.0...HEAD
+[5.0.0]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/4.3.0...5.0.0
 [4.3.0]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/4.2.0...4.3.0
 [4.2.0]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/4.1.0...4.2.0
 [4.1.0]: https://github.com/sensu-plugins/sensu-plugins-sensu/compare/4.0.0...4.1.0
