@@ -31,7 +31,7 @@ Gem::Specification.new do |s| # rubocop:disable Metrics/BlockLength
   s.version                = SensuPluginsSensu::Version::VER_STRING
 
   s.add_runtime_dependency 'chronic_duration',  '0.10.6'
-  s.add_runtime_dependency 'rest-client', '2.0.2'
+  s.add_runtime_dependency 'rest-client', '2.1.0'
   s.add_runtime_dependency 'sensu-plugin', '~> 4.0'
 
   s.add_development_dependency 'bundler',                   '~> 2.1'
